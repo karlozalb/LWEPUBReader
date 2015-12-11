@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.io.FileUtils;
@@ -36,6 +38,13 @@ public class MyLibraryFragment extends GenericFragment{
         mFileUtils = new FileUtils();
 
         updateMyLibrary();
+
+        myLibraryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Router.showEPUB(MyLibraryFragment.this.getActivity(),((MyLibraryBookListNode)mMyLibraryAdapter.getItem(position)).getEbookPath());
+            }
+        });
 
         return v;
     }

@@ -90,7 +90,10 @@ public class MyLibraryAdapter extends BaseAdapter {
                 String[] result = new String[2];
 
                 try {
-                    result[0] = loaderHelper.getPackage().getMetadata().getBookAuthor();
+                    String[] authors = loaderHelper.getPackage().getMetadata().getBookAuthor();
+                    for (String author : authors){
+                        result[0] += author + " & ";
+                    }
                     result[1] = loaderHelper.getPackage().getMetadata().getBookTitle();
                 } catch (EPUBException e) {
                     e.printStackTrace();
