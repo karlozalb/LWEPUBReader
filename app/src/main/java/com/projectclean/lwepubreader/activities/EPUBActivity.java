@@ -1,6 +1,7 @@
 package com.projectclean.lwepubreader.activities;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -110,7 +111,6 @@ public class EPUBActivity extends ActionBarActivity {
             mEPUBBook = new EPUBBook(mEPUBPath);
             ((WebView)mContentView).loadData(mEPUBBook.loadChapter(1), "text/html", "UTF-8");
             WebSettings webSettings = ((WebView) mContentView).getSettings();
-            webSettings.setTextZoom(150);
             setWebViewConfiguration();
         }
 
@@ -188,10 +188,16 @@ public class EPUBActivity extends ActionBarActivity {
         webView.getSettings().setUseWideViewPort(true);
         webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS); //mirar esto.
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.setHorizontalScrollBarEnabled(false);
+        webView.setVerticalScrollBarEnabled(false);
 
         webView.setWebViewClient(new WebViewClient() {
+
+            /*public void onPageStarted(WebView view, String url, Bitmap favicon){
+            }*/
+
             public void onPageFinished(WebView view, String url) {
-                String js = "javascript:function initialize() { " +
+                String initializeFunc = "javascript:function initialize() { " +
                         "var d = document.getElementsByTagName('body')[0];" +
                         "var ourH = window.innerHeight; " +
                         "var ourW = window.innerWidth; " +
@@ -205,7 +211,12 @@ public class EPUBActivity extends ActionBarActivity {
                         "d.style.margin = 0; " +
                         "d.style.webkitColumnCount = pageCount;" +
                         "}";
-                webView.loadUrl(js);
+
+                String changeFontFunc = "javascript:function"; //need to be finished.
+
+                webView.loadUrl(initializeFunc); //dup.
+                webView.loadUrl(initializeFunc);
+                webView.loadUrl("javascript:setTextFont()");
                 webView.loadUrl("javascript:initialize()");
             }
         });
