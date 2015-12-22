@@ -1,20 +1,20 @@
 package com.projectclean.lwepubreader.activities;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Xml;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.SeekBar;
 
 import com.projectclean.lwepubreader.R;
-import com.projectclean.lwepubreader.epub.EPUBBook;
+import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
+import com.projectclean.lwepubreader.utils.JavascriptUtils;
+import com.projectclean.lwepubreader.utils.ScreenUtils;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -62,10 +62,10 @@ public class EPUBActivity extends ActionBarActivity {
         @Override
         public void run() {
             // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
+            /*ActionBar actionBar = getSupportActionBar();
             if (actionBar != null) {
                 actionBar.show();
-            }
+            }*/
             mControlsView.setVisibility(View.VISIBLE);
         }
     };
@@ -93,7 +93,20 @@ public class EPUBActivity extends ActionBarActivity {
 
     public static final String EPUBPATHEXTRA = "EPUBPATHEXTRA";
     private String mEPUBPath;
-    private EPUBBook mEPUBBook;
+    private int mScreenWidth;
+
+    /* Font and margin values */
+    private int mCurrentFontSizePx = 12;
+    private float mCurrentFontSizeEm = 0.75f;
+
+    private int mCurrentMarginSizePx = 12;
+    private float mCurrentMarginSizeEm = 1;
+
+    private int mMaxFontSize,mMinFontSize;
+    private int mMaxMarginSize,mMinMarginSize;
+
+    /* UI components */
+    private SeekBar mFontChangeSeekBar,mMarginChangeSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,27 +118,86 @@ public class EPUBActivity extends ActionBarActivity {
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = findViewById(R.id.fullscreen_content);
 
+        mFontChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_font_change);
+        mMarginChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_margin_change);
+
         Bundle params = getIntent().getExtras();
         if (params != null){
             mEPUBPath = params.getString(EPUBPATHEXTRA);
-            mEPUBBook = new EPUBBook(mEPUBPath);
-            ((WebView)mContentView).loadData(mEPUBBook.loadChapter(1), "text/html", "UTF-8");
-            WebSettings webSettings = ((WebView) mContentView).getSettings();
+
+            String htmlWebSite = "";
+            htmlWebSite += "<script src=\"file:///android_asset/epub.js\" type=\"text/javascript\"></script>";
+            htmlWebSite += "<script src=\"file:///android_asset/zip.min.js\" type=\"text/javascript\"></script>";
+            htmlWebSite += "<div id=\"area\"></div>";
+
+            ((WebView)mContentView).loadDataWithBaseURL("file:///android_asset/",htmlWebSite, "text/html", "UTF-8",null);
             setWebViewConfiguration();
         }
 
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
+        mScreenWidth = ScreenUtils.getScreenWidth(this);
+
+        setParameters();
+
+        mFontChangeSeekBar.setMax(mMaxFontSize - mMinFontSize);
+        mFontChangeSeekBar.setProgress(mCurrentFontSizePx - mMinFontSize);
+
+        mMarginChangeSeekBar.setMax(mMaxMarginSize - mMinMarginSize);
+        mMarginChangeSeekBar.setProgress((int)mCurrentMarginSizeEm - mMinMarginSize);
+
+        initializeGUIComponentListeners();
+    }
+
+    private void initializeGUIComponentListeners() {
+
+        //                                  FONT SIZE
+        //***********************************************************************************
+        mFontChangeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onClick(View view) {
-                toggle();
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+                mCurrentFontSizePx = progress + mMinFontSize;
+                if (mCurrentFontSizePx > mMaxFontSize) mCurrentFontSizePx = mMaxFontSize;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
             }
         });
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        //                                  MARGIN SIZE
+        //***********************************************************************************
+        mMarginChangeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+                mCurrentMarginSizeEm = progress + mMinMarginSize;
+                if (mCurrentMarginSizeEm > mMaxMarginSize) mCurrentMarginSizeEm = mMaxMarginSize;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
+            }
+        });
+    }
+
+    private void setParameters(){
+        mMinFontSize = getResources().getInteger(R.integer.min_font_size_px);
+        mMaxFontSize = getResources().getInteger(R.integer.max_font_size_px);
+
+        mMinMarginSize = getResources().getInteger(R.integer.min_margin_size_px);
+        mMaxMarginSize = getResources().getInteger(R.integer.max_margin_size_px);
     }
 
     @Override
@@ -185,39 +257,74 @@ public class EPUBActivity extends ActionBarActivity {
 
         final WebView webView = (WebView)mContentView;
 
-        webView.getSettings().setUseWideViewPort(true);
-        webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NARROW_COLUMNS); //mirar esto.
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setAllowFileAccess(true);
+        webView.getSettings().setAllowContentAccess(true);
+        webView.getSettings().setAllowFileAccessFromFileURLs(true);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         webView.setHorizontalScrollBarEnabled(false);
         webView.setVerticalScrollBarEnabled(false);
 
         webView.setWebViewClient(new WebViewClient() {
-
-            /*public void onPageStarted(WebView view, String url, Bitmap favicon){
-            }*/
-
             public void onPageFinished(WebView view, String url) {
-                String initializeFunc = "javascript:function initialize() { " +
-                        "var d = document.getElementsByTagName('body')[0];" +
-                        "var ourH = window.innerHeight; " +
-                        "var ourW = window.innerWidth; " +
-                        "var fullH = d.offsetHeight; " +
-                        "var pageCount = Math.floor(fullH/ourH)+1;" +
-                        "var currentPage = 0; " +
-                        "var newW = pageCount*ourW; " +
-                        "d.style.height = ourH+'px';" +
-                        "d.style.width = newW+'px';" +
-                        "d.style.webkitColumnGap = '2px'; " +
-                        "d.style.margin = 0; " +
-                        "d.style.webkitColumnCount = pageCount;" +
-                        "}";
+                String loadEpub = "javascript:" +
+                        "var Book = ePub(\"file:///" + mEPUBPath + "\");" +
+                        "Book.renderTo(\"area\");";
 
-                String changeFontFunc = "javascript:function"; //need to be finished.
+                webView.loadUrl(loadEpub);
+                webView.loadUrl(JavascriptUtils.getOnPageChangedFunc());
+                webView.loadUrl(JavascriptUtils.getOnBookReadyFunc());
+            }
+        });
 
-                webView.loadUrl(initializeFunc); //dup.
-                webView.loadUrl(initializeFunc);
-                webView.loadUrl("javascript:setTextFont()");
-                webView.loadUrl("javascript:initialize()");
+        webView.addJavascriptInterface(new JavascriptEPUBInterface(this), "Android");
+
+        webView.setOnTouchListener(new View.OnTouchListener() {
+
+            private float mStartX,mEndX;
+            private float mStartY,mEndY;
+
+            public boolean onTouch(View v, MotionEvent event) {
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    mStartX = event.getX();
+                    mStartY = event.getY();
+                }else if (event.getAction() == MotionEvent.ACTION_UP){
+                    mEndX = event.getX();
+                    mEndY = event.getY();
+
+                    float offsetX = mStartX - mEndX;
+                    float offsetXAbs = Math.abs(offsetX);
+
+                    float offsetY = mStartY - mEndY;
+                    float offsetYAbs = Math.abs(offsetY);
+
+                    if (offsetXAbs < 20 && offsetYAbs < 20){
+                        toggle();
+                        mDelayHideTouchListener.onTouch(v,event);
+                    }else{
+                        if (offsetXAbs >= offsetYAbs){
+                            if (offsetXAbs > 50) {
+                                if (offsetX < 0) {
+                                    webView.loadUrl(JavascriptUtils.getPrevPageFunc());
+                                } else if (offsetX > 0) {
+                                    webView.loadUrl(JavascriptUtils.getNextPageFunc());
+                                }
+                            }
+                        }else{
+                            if (offsetYAbs > 50) {
+                                if (offsetY < 0) {
+                                    mCurrentFontSizePx-=2;
+                                } else if (offsetY > 0) {
+                                    mCurrentFontSizePx+=2;
+                                }
+                                webView.loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
+                            }
+                        }
+                    }
+                }
+
+                return (event.getAction() == MotionEvent.ACTION_MOVE);
             }
         });
     }

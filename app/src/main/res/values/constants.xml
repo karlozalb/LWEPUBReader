@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="max_font_size_px">48</integer>
+    <integer name="min_font_size_px">8</integer>
+
+    <integer name="max_margin_size_px">10</integer>
+    <integer name="min_margin_size_px">1</integer>
+</resources>

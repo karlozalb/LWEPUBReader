@@ -1,20 +1,35 @@
 package com.projectclean.lwepubreader.adapters;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pcg.epubloader.EPUBLoaderHelper;
+import com.pcg.epubspec.Manifest;
+import com.pcg.epubspec.Spine;
 import com.pcg.exceptions.EPUBException;
 import com.projectclean.lwepubreader.listnodes.MyLibraryBookListNode;
 import com.projectclean.lwepubreader.R;
+import com.projectclean.lwepubreader.model.Book;
+import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
+import com.projectclean.lwepubreader.utils.JavascriptUtils;
+import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by Carlos Albaladejo Pérez on 05/12/2015.
@@ -23,23 +38,26 @@ public class MyLibraryAdapter extends BaseAdapter {
 
     private Activity mActivity;
     private LayoutInflater mLayoutInflater;
-    private LinkedList<MyLibraryBookListNode> mBooks;
+    private LinkedList<Book> mBooks;
+    private String mPrivateFilesDir;
 
     public MyLibraryAdapter(Activity pactivity){
         mActivity = pactivity;
         mLayoutInflater = pactivity.getLayoutInflater();
-        mBooks = new LinkedList<MyLibraryBookListNode>();
+        mBooks = new LinkedList<Book>();
+
+        mPrivateFilesDir = mActivity.getFilesDir().getAbsolutePath();
     }
 
-    public void addItem(MyLibraryBookListNode pnode){
+    public void addItem(Book pnode){
         mBooks.add(pnode);
     }
 
-    public void addItems(LinkedList<MyLibraryBookListNode> pnodes){
+    public void addItems(List<Book> pnodes){
         mBooks.addAll(pnodes);
     }
 
-    public void addItemAtPosition(int position,MyLibraryBookListNode pnode){
+    public void addItemAtPosition(int position,Book pnode){
         mBooks.add(position, pnode);
     }
 
@@ -63,9 +81,9 @@ public class MyLibraryAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
 
-        MyLibraryBookListNode dataNode = mBooks.get(position);
+        final Book currentBook = mBooks.get(position);
         final MyLibraryBookListHolder holder;
 
         if (convertView == null){ //Brand new view needed!
@@ -74,29 +92,55 @@ public class MyLibraryAdapter extends BaseAdapter {
             holder = new MyLibraryBookListHolder();
             holder.AUTHOR = (TextView)convertView.findViewById(R.id.mylibrary_item_author);
             holder.TITLE = (TextView)convertView.findViewById(R.id.mylibrary_item_title);
-            holder.IMAGE = (ImageView)convertView.findViewById(R.id.mylibrary_item_cover);
+            holder.COVER = (ImageView)convertView.findViewById(R.id.mylibrary_item_cover);
 
             convertView.setTag(holder);
         }else{ //Recycled view
             holder = (MyLibraryBookListHolder)convertView.getTag();
         }
 
-        if (holder.TASK != null) holder.TASK.cancel(true);
+        holder.AUTHOR.setText(currentBook.getAuthor());
+        holder.TITLE.setText(currentBook.getTitle());
+        Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).into(holder.COVER);
+
+
+        //if (holder.TASK != null) holder.TASK.cancel(true);
+
+        /*final List<Book> book = Book.find(Book.class, "BOOK_PATH = ?", dataNode.getEbookPath());
+
         holder.TASK = new AsyncTask<String, Integer, String[]>(){
 
             protected String[] doInBackground(String... ppath) {
-                EPUBLoaderHelper loaderHelper = new EPUBLoaderHelper(ppath[0]);
+                String[] result = new String[3];
 
-                String[] result = new String[2];
+                if (book != null && book.size() > 0){
+                    Log.i("LWEPUB", "Book stored in database.");
+                    result[0] = book.get(0).getAuthor();
+                    result[1] = book.get(0).getTitle();
+                    result[2] = book.get(0).getBookPath();
+                }else {
+                    Log.i("LWEPUB", "New book!.");
+                    holder.LOADER_HELPER = new EPUBLoaderHelper(ppath[0]);
 
-                try {
-                    String[] authors = loaderHelper.getPackage().getMetadata().getBookAuthor();
-                    for (String author : authors){
-                        result[0] += author + " & ";
+                    try {
+                        String[] authors = holder.LOADER_HELPER.getPackage().getMetadata().getBookAuthor();
+                        result[0] = "";
+
+                        if (authors.length == 0) {
+                            result[0] = "Unknown author";
+                        } else if (authors.length == 1) {
+                            result[0] = authors[0];
+                        } else {
+                            for (int i = 0; i < authors.length - 1; i++) {
+                                result[0] += authors[i] + " & ";
+                            }
+                            result[0] += authors[authors.length - 1];
+                        }
+                        result[1] = holder.LOADER_HELPER.getPackage().getMetadata().getBookTitle();
+                        result[2] = ppath[0];
+                    } catch (EPUBException e) {
+                        e.printStackTrace();
                     }
-                    result[1] = loaderHelper.getPackage().getMetadata().getBookTitle();
-                } catch (EPUBException e) {
-                    e.printStackTrace();
                 }
 
                 return result;
@@ -107,21 +151,32 @@ public class MyLibraryAdapter extends BaseAdapter {
 
             protected void onPostExecute(String[] presult) {
                 if (!isCancelled()){
+                    holder.AUTHOR_STRING = presult[0];
+                    holder.TITLE_STRING = presult[1];
+                    holder.EPUB_PATH = presult[2];
+
                     holder.AUTHOR.setText(presult[0]);
                     holder.TITLE.setText(presult[1]);
+                    holder.THUMB_GENERATOR.addTask(holder);
                 }
             }
         };
-
-        holder.TASK.execute(dataNode.getEbookPath());
+        holder.TASK.execute(dataNode.getEbookPath());*/
 
         return convertView;
     }
 
     public class MyLibraryBookListHolder{
-
+        //View items
         public TextView TITLE,AUTHOR;
-        public ImageView IMAGE;
+        public ImageView COVER;
+
+        //Additional data
+        public String TITLE_STRING,AUTHOR_STRING,EPUB_PATH;
+
+        //Helpers
         public AsyncTask<String, Integer, String[]> TASK;
+        public EPUBLoaderHelper LOADER_HELPER;
+        public CoverThumbGenerator THUMB_GENERATOR;
     }
 }
