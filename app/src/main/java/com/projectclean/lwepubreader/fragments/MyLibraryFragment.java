@@ -48,7 +48,7 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         myLibraryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Router.showEPUB(MyLibraryFragment.this.getActivity(), ((MyLibraryBookListNode) mMyLibraryAdapter.getItem(position)).getEbookPath());
+                Router.showEPUB(MyLibraryFragment.this.getActivity(), ((Book) mMyLibraryAdapter.getItem(position)).getBookPath());
             }
         });
 

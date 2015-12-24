@@ -12,6 +12,7 @@ import android.webkit.WebViewClient;
 import android.widget.SeekBar;
 
 import com.projectclean.lwepubreader.R;
+import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.projectclean.lwepubreader.utils.ScreenUtils;
@@ -107,6 +108,7 @@ public class EPUBActivity extends ActionBarActivity {
 
     /* UI components */
     private SeekBar mFontChangeSeekBar,mMarginChangeSeekBar;
+    private Book mBook;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +126,8 @@ public class EPUBActivity extends ActionBarActivity {
         Bundle params = getIntent().getExtras();
         if (params != null){
             mEPUBPath = params.getString(EPUBPATHEXTRA);
+
+            mBook = Book.find(Book.class, "BOOK_PATH = ?", mEPUBPath).get(0);
 
             String htmlWebSite = "";
             htmlWebSite += "<script src=\"file:///android_asset/epub.js\" type=\"text/javascript\"></script>";
@@ -166,6 +170,7 @@ public class EPUBActivity extends ActionBarActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                mBook.setFontSize(mCurrentFontSizePx);
                 ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
             }
         });
@@ -187,6 +192,7 @@ public class EPUBActivity extends ActionBarActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                mBook.setMargin(mCurrentMarginSizeEm);
                 ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
             }
         });
@@ -268,28 +274,43 @@ public class EPUBActivity extends ActionBarActivity {
         webView.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
                 String loadEpub = "javascript:" +
-                        "var Book = ePub(\"file:///" + mEPUBPath + "\");" +
-                        "Book.renderTo(\"area\");";
+                        "var Book = ePub(\"file:///" + mEPUBPath + "\");";
+
+                if (mBook.getBookState() != null && mBook.getBookState().length() > 0) {
+                    loadEpub += "javascript: Book.gotoCfi('" + mBook.getBookState() + "');";
+                }
+
+                loadEpub += "Book.renderTo(\"area\");";
 
                 webView.loadUrl(loadEpub);
                 webView.loadUrl(JavascriptUtils.getOnPageChangedFunc());
                 webView.loadUrl(JavascriptUtils.getOnBookReadyFunc());
+
+                if (mBook.getFontSize() != 0) {
+                    mCurrentFontSizePx = mBook.getFontSize();
+                    ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
+                }
+
+                if (mBook.getMargin() != 0) {
+                    mCurrentMarginSizeEm = mBook.getMargin();
+                    ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
+                }
             }
         });
 
-        webView.addJavascriptInterface(new JavascriptEPUBInterface(this), "Android");
+        webView.addJavascriptInterface(new JavascriptEPUBInterface(this, mBook), "Android");
 
         webView.setOnTouchListener(new View.OnTouchListener() {
 
-            private float mStartX,mEndX;
-            private float mStartY,mEndY;
+            private float mStartX, mEndX;
+            private float mStartY, mEndY;
 
             public boolean onTouch(View v, MotionEvent event) {
 
-                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     mStartX = event.getX();
                     mStartY = event.getY();
-                }else if (event.getAction() == MotionEvent.ACTION_UP){
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
                     mEndX = event.getX();
                     mEndY = event.getY();
 
@@ -299,11 +320,11 @@ public class EPUBActivity extends ActionBarActivity {
                     float offsetY = mStartY - mEndY;
                     float offsetYAbs = Math.abs(offsetY);
 
-                    if (offsetXAbs < 20 && offsetYAbs < 20){
+                    if (offsetXAbs < 20 && offsetYAbs < 20) {
                         toggle();
-                        mDelayHideTouchListener.onTouch(v,event);
-                    }else{
-                        if (offsetXAbs >= offsetYAbs){
+                        mDelayHideTouchListener.onTouch(v, event);
+                    } else {
+                        if (offsetXAbs >= offsetYAbs) {
                             if (offsetXAbs > 50) {
                                 if (offsetX < 0) {
                                     webView.loadUrl(JavascriptUtils.getPrevPageFunc());
@@ -311,12 +332,12 @@ public class EPUBActivity extends ActionBarActivity {
                                     webView.loadUrl(JavascriptUtils.getNextPageFunc());
                                 }
                             }
-                        }else{
+                        } else {
                             if (offsetYAbs > 50) {
                                 if (offsetY < 0) {
-                                    mCurrentFontSizePx-=2;
+                                    mCurrentFontSizePx -= 2;
                                 } else if (offsetY > 0) {
-                                    mCurrentFontSizePx+=2;
+                                    mCurrentFontSizePx += 2;
                                 }
                                 webView.loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
                             }

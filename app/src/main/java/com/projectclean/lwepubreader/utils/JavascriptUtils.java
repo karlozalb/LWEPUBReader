@@ -43,7 +43,7 @@ public class JavascriptUtils {
         //return "javascript:Book.on('book:locationChanged', function(location){ Android.showCurrentPageData(location.anchorPage, location.pageRange, location.percentage); });";
 
         return "javascript:Book.on('renderer:locationChanged', function(locationCfi){"+
-            "console.log(locationCfi);"+
+            "Android.saveCurrentPageData(locationCfi);"+
         "});";
 
         //return "javascript:Book.on('book:pageChanged', function(location){ console.log(\"ñksdjgakjlsdgfaklaskgja\"); });";
