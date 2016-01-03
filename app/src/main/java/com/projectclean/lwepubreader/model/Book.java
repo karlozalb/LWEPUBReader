@@ -11,6 +11,8 @@ public class Book extends SugarRecord {
     String bookState, bookPath, bookCover;
     String dateAdded, dateLastRead;
 
+    String bookFileName;
+
     int mFontSize;
     float mMargin;
 
@@ -88,5 +90,13 @@ public class Book extends SugarRecord {
 
     public void setMargin(float mMargin) {
         this.mMargin = mMargin;
+    }
+
+    public String getBookFileName() {
+        return bookFileName;
+    }
+
+    public void setBookFileName(String bookFileName) {
+        this.bookFileName = bookFileName;
     }
 }

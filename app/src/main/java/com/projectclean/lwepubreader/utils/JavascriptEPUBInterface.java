@@ -1,10 +1,12 @@
 package com.projectclean.lwepubreader.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
+import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 
 /**
@@ -14,10 +16,12 @@ public class JavascriptEPUBInterface {
 
     private Context mContext;
     private Book mBook;
+    private FileUtils mFileUtils;
 
-    public JavascriptEPUBInterface(Context pcontext,Book pbook){
+    public JavascriptEPUBInterface(Activity pcontext,Book pbook){
         mContext = pcontext;
         mBook = pbook;
+        mFileUtils = FileUtils.getInstance(pcontext);
     }
 
     @JavascriptInterface
@@ -31,6 +35,11 @@ public class JavascriptEPUBInterface {
         Log.i("LWEPUB","pcurrentpageconfig: "+pcurrentpageconfig);
         mBook.setBookState(pcurrentpageconfig);
         mBook.save();
+    }
+
+    @JavascriptInterface
+    public void saveBookPagination(String pepubpagination){
+        mFileUtils.saveStringToInternalStorageFile(mBook.getBookFileName()+ ".json",pepubpagination);
     }
 
 }

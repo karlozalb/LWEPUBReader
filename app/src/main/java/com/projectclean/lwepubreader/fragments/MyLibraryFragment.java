@@ -66,15 +66,19 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     }
 
     public void loadCurrentLibrary(){
-        List<Book> books = Book.findWithQuery(Book.class,"SELECT * FROM BOOK");
+        try {
+            List<Book> books = Book.findWithQuery(Book.class, "SELECT * FROM BOOK");
 
-        mMyLibraryAdapter.clear();
+            mMyLibraryAdapter.clear();
 
-        if (books.size() > 0){
-            mMyLibraryAdapter.addItems(books);
+            if (books.size() > 0){
+                mMyLibraryAdapter.addItems(books);
+            }
+
+            mMyLibraryAdapter.notifyDataSetChanged();
+        }catch(ExceptionInInitializerError e){
+            //Database doesn't exist yet.
         }
-
-        mMyLibraryAdapter.notifyDataSetChanged();
     }
 
     public void updateMyLibrary(){

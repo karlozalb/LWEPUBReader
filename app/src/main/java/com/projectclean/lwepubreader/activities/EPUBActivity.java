@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
@@ -17,11 +18,13 @@ import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.projectclean.lwepubreader.utils.ScreenUtils;
 
+import java.io.File;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class EPUBActivity extends ActionBarActivity {
+public class EPUBActivity extends AppCompatActivity {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -273,18 +276,34 @@ public class EPUBActivity extends ActionBarActivity {
 
         webView.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
-                String loadEpub = "javascript:" +
-                        "var Book = ePub(\"file:///" + mEPUBPath + "\");";
+                String loadEpub = "javascript: var Book = ePub(\"file:///" + mEPUBPath + "\");";
 
                 if (mBook.getBookState() != null && mBook.getBookState().length() > 0) {
-                    loadEpub += "javascript: Book.gotoCfi('" + mBook.getBookState() + "');";
+                    loadEpub += "Book.gotoCfi('" + mBook.getBookState() + "');";
                 }
 
-                loadEpub += "Book.renderTo(\"area\");";
+                File file = new File(getFilesDir().getPath() + "/" + mBook.getBookFileName() + ".json");
+                if (!file.exists()) {
+                    loadEpub += "Book.pageListReady.then(function(pageList){" +
+                            "Android.saveBookPagination(JSON.stringify(pageList));" +
+                            "});";
+                    loadEpub += "Book.ready.all.then(function(){ Book.generatePagination(); });";
+                }
+
+
+                loadEpub += "var rendered = Book.renderTo(\"area\");";
 
                 webView.loadUrl(loadEpub);
                 webView.loadUrl(JavascriptUtils.getOnPageChangedFunc());
                 webView.loadUrl(JavascriptUtils.getOnBookReadyFunc());
+
+                if (file.exists()) {
+                    String loadPagination = "javascript: EPUBJS.core.request(\"file://" + mBook.getBookPath() + ".json\").then(function(storedPageList){pageList = storedPageList;console.log('ano palpitante');Book.loadPagination(pageList);});";
+                    loadPagination += "Book.pageListReady.then(function(pageList){" +
+                            "console.log(JSON.stringify(pageList));" +
+                            "});";
+                    webView.loadUrl(loadPagination);
+                }
 
                 if (mBook.getFontSize() != 0) {
                     mCurrentFontSizePx = mBook.getFontSize();
@@ -293,7 +312,7 @@ public class EPUBActivity extends ActionBarActivity {
 
                 if (mBook.getMargin() != 0) {
                     mCurrentMarginSizeEm = mBook.getMargin();
-                    ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
+                    ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
                 }
             }
         });

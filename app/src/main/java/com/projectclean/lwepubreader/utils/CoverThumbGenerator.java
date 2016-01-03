@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import com.pcg.epubloader.EPUBLoaderHelper;
 import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.epub.EPUBImporter;
+import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 import com.squareup.picasso.Picasso;
 import java.io.File;
@@ -32,11 +33,13 @@ public class CoverThumbGenerator {
     private String mPrivateFilesDir;
     private Queue<CoverGenTaskData> mQueue;
     private EPUBImporter mEPUBImporter;
+    private FileUtils mFileUtils;
 
     public CoverThumbGenerator(Activity pcontext,EPUBImporter pepubimporter){
         mContext = pcontext;
         mQueue = new ConcurrentLinkedQueue<CoverGenTaskData>();
         mEPUBImporter = pepubimporter;
+        mFileUtils = FileUtils.getInstance(pcontext);
     }
 
     synchronized public void addTask(String pepubpath,Book pnewbook){
@@ -59,13 +62,8 @@ public class CoverThumbGenerator {
 
     private void generateCover(CoverGenTaskData ptask){
         mPrivateFilesDir = mContext.getFilesDir().getAbsolutePath();
-        String fileName = getFileName(ptask.EPUB_PATH);
+        String fileName = mFileUtils.getFileName(ptask.EPUB_PATH);
         prepareScreenshot(fileName,ptask);
-    }
-
-    private String getFileName(String pfilepath){
-        String[] tokens = pfilepath.split("/");
-        return tokens[tokens.length-1];
     }
 
     public Bitmap loadBitmapFromView(View v) {

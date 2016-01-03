@@ -1,11 +1,13 @@
 package com.projectclean.lwepubreader.io;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.util.LinkedList;
 
@@ -16,6 +18,7 @@ public class FileUtils {
 
     private File[] mExternalDirectores;
     private LinkedList<File> mRootExternalDirectores;
+    private Activity mContext;
 
     private static FileUtils mInstance;
 
@@ -28,6 +31,7 @@ public class FileUtils {
 
     private FileUtils(Activity pcontext) {
         mExternalDirectores = ContextCompat.getExternalFilesDirs(pcontext, null);
+        mContext = pcontext;
 
         mRootExternalDirectores = new LinkedList<File>();
 
@@ -94,5 +98,22 @@ public class FileUtils {
 
     public LinkedList<File> getRootExternalDirectories(){
         return mRootExternalDirectores;
+    }
+
+    public String getFileName(String pfilepath){
+        String[] tokens = pfilepath.split("/");
+        return tokens[tokens.length-1];
+    }
+
+    public void saveStringToInternalStorageFile(String pfilename,String pcontent){
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = mContext.openFileOutput(pfilename, Context.MODE_PRIVATE);
+            outputStream.write(pcontent.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -2,10 +2,12 @@ package com.projectclean.lwepubreader.epub;
 
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.pcg.epubloader.EPUBLoaderHelper;
 import com.pcg.exceptions.EPUBException;
+import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
 import com.projectclean.lwepubreader.utils.DateTimeUtils;
@@ -21,9 +23,11 @@ public class EPUBImporter {
     private CoverThumbGenerator mThumbGenerator;
     private int mCurrentProgress,mGoalProgress;
     private IProgressListener mProgressListener;
+    private FileUtils mFileUtils;
 
     public EPUBImporter(Activity pactivity){
         mThumbGenerator = new CoverThumbGenerator(pactivity,this);
+        mFileUtils = FileUtils.getInstance(pactivity);
     }
 
     public void setProgressListener(Object plistener){
@@ -73,6 +77,7 @@ public class EPUBImporter {
                         }
 
                         newBook.setBookPath(epubLoader.getPath());
+                        newBook.setBookFileName(mFileUtils.getFileName(newBook.getBookPath()));
                         newBook.setDateAdded(DateTimeUtils.getCurrentDate());
                         mThumbGenerator.addTask(epubLoader.getPath(),newBook);
                     }
