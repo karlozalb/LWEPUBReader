@@ -6,11 +6,13 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.model.Book;
@@ -18,7 +20,13 @@ import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.projectclean.lwepubreader.utils.ScreenUtils;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -107,10 +115,14 @@ public class EPUBActivity extends AppCompatActivity {
     private float mCurrentMarginSizeEm = 1;
 
     private int mMaxFontSize,mMinFontSize;
-    private int mMaxMarginSize,mMinMarginSize;
+    private int mMinWidthAndHeight;
+    private int mMaxMarginSize,mMinMarginSize,mCurrentWidthAndHeight,mMaxWidthAndHeight;
 
     /* UI components */
     private SeekBar mFontChangeSeekBar,mMarginChangeSeekBar;
+    private TextView mCurrentPageTextView;
+
+    /* Sugar record model object */
     private Book mBook;
 
     @Override
@@ -125,6 +137,7 @@ public class EPUBActivity extends AppCompatActivity {
 
         mFontChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_font_change);
         mMarginChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_margin_change);
+        mCurrentPageTextView = (TextView)findViewById(R.id.page_number_indicator);
 
         Bundle params = getIntent().getExtras();
         if (params != null){
@@ -133,11 +146,13 @@ public class EPUBActivity extends AppCompatActivity {
             mBook = Book.find(Book.class, "BOOK_PATH = ?", mEPUBPath).get(0);
 
             String htmlWebSite = "";
-            htmlWebSite += "<script src=\"file:///android_asset/epub.js\" type=\"text/javascript\"></script>";
-            htmlWebSite += "<script src=\"file:///android_asset/zip.min.js\" type=\"text/javascript\"></script>";
-            htmlWebSite += "<div id=\"area\"></div>";
+            try {
+                htmlWebSite = IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html")));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            ((WebView)mContentView).loadDataWithBaseURL("file:///android_asset/",htmlWebSite, "text/html", "UTF-8",null);
+            ((WebView) mContentView).loadDataWithBaseURL("file:///android_asset/", htmlWebSite, "text/html", "UTF-8", null);
             setWebViewConfiguration();
         }
 
@@ -148,8 +163,8 @@ public class EPUBActivity extends AppCompatActivity {
         mFontChangeSeekBar.setMax(mMaxFontSize - mMinFontSize);
         mFontChangeSeekBar.setProgress(mCurrentFontSizePx - mMinFontSize);
 
-        mMarginChangeSeekBar.setMax(mMaxMarginSize - mMinMarginSize);
-        mMarginChangeSeekBar.setProgress((int)mCurrentMarginSizeEm - mMinMarginSize);
+        mMarginChangeSeekBar.setMax(mMaxWidthAndHeight - mMinWidthAndHeight);
+        mMarginChangeSeekBar.setProgress(mCurrentWidthAndHeight -mMinWidthAndHeight);
 
         initializeGUIComponentListeners();
     }
@@ -174,7 +189,9 @@ public class EPUBActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 mBook.setFontSize(mCurrentFontSizePx);
-                ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
+                Log.i("LWEPUB", mBook.toString());
+                mBook.save();
+                ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
             }
         });
 
@@ -184,8 +201,10 @@ public class EPUBActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 delayedHide(AUTO_HIDE_DELAY_MILLIS);
-                mCurrentMarginSizeEm = progress + mMinMarginSize;
-                if (mCurrentMarginSizeEm > mMaxMarginSize) mCurrentMarginSizeEm = mMaxMarginSize;
+                /*mCurrentMarginSizeEm = progress + mMinMarginSize;
+                if (mCurrentMarginSizeEm > mMaxMarginSize) mCurrentMarginSizeEm = mMaxMarginSize;*/
+                mCurrentWidthAndHeight = progress + mMinWidthAndHeight;
+                if (mCurrentWidthAndHeight > mMaxWidthAndHeight) mCurrentWidthAndHeight = mMaxWidthAndHeight;
             }
 
             @Override
@@ -195,8 +214,10 @@ public class EPUBActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                mBook.setMargin(mCurrentMarginSizeEm);
-                ((WebView)mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
+                mBook.setWidthAndHeight(mCurrentWidthAndHeight);
+                Log.i("LWEPUB", mBook.toString());
+                mBook.save();
+                ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeWidthAndHeightFuncEm(mCurrentWidthAndHeight));
             }
         });
     }
@@ -207,6 +228,9 @@ public class EPUBActivity extends AppCompatActivity {
 
         mMinMarginSize = getResources().getInteger(R.integer.min_margin_size_px);
         mMaxMarginSize = getResources().getInteger(R.integer.max_margin_size_px);
+
+        mMinWidthAndHeight = 75;
+        mMaxWidthAndHeight = 95;
     }
 
     @Override
@@ -276,7 +300,7 @@ public class EPUBActivity extends AppCompatActivity {
 
         webView.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
-                String loadEpub = "javascript: var Book = ePub(\"file:///" + mEPUBPath + "\");";
+                String loadEpub = "javascript: var Book = ePub({ spread: \"none\" }); Book.open(\"file:///" + mEPUBPath + "\");";
 
                 if (mBook.getBookState() != null && mBook.getBookState().length() > 0) {
                     loadEpub += "Book.gotoCfi('" + mBook.getBookState() + "');";
@@ -286,33 +310,46 @@ public class EPUBActivity extends AppCompatActivity {
                 if (!file.exists()) {
                     loadEpub += "Book.pageListReady.then(function(pageList){" +
                             "Android.saveBookPagination(JSON.stringify(pageList));" +
+                            "console.log('Pagination created correctly.');" +
                             "});";
                     loadEpub += "Book.ready.all.then(function(){ Book.generatePagination(); });";
                 }
 
-
                 loadEpub += "var rendered = Book.renderTo(\"area\");";
 
                 webView.loadUrl(loadEpub);
+
+                mCurrentWidthAndHeight = 80;
+                if (mBook.getWidthAndHeight() != 0) {
+                    mCurrentWidthAndHeight = mBook.getWidthAndHeight();
+                }
+
+                //webView.loadUrl(JavascriptUtils.getChangeWidthAndHeightFuncEm(mCurrentWidthAndHeight));
                 webView.loadUrl(JavascriptUtils.getOnPageChangedFunc());
                 webView.loadUrl(JavascriptUtils.getOnBookReadyFunc());
 
                 if (file.exists()) {
-                    String loadPagination = "javascript: EPUBJS.core.request(\"file://" + mBook.getBookPath() + ".json\").then(function(storedPageList){pageList = storedPageList;console.log('ano palpitante');Book.loadPagination(pageList);});";
-                    loadPagination += "Book.pageListReady.then(function(pageList){" +
-                            "console.log(JSON.stringify(pageList));" +
-                            "});";
-                    webView.loadUrl(loadPagination);
+                    try {
+                        String loadPagination = "javascript: Book.loadPagination('" + IOUtils.toString(new FileInputStream(new File(getFilesDir().getPath() + "/" + mBook.getBookFileName() + ".json"))) + "');";
+                        loadPagination += "Book.pageListReady.then(function(pageList){" +
+                                    "console.log('Pagination loaded correctly.');" +
+                                "});";
+                        webView.loadUrl(loadPagination);
+                    } catch (IOException e) {
+                        Log.e("LWEPUB",e.getMessage());
+                    }
                 }
 
                 if (mBook.getFontSize() != 0) {
                     mCurrentFontSizePx = mBook.getFontSize();
+                    mFontChangeSeekBar.setProgress(mCurrentFontSizePx - mMinFontSize);
                     ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeFontSizeFuncPx(mCurrentFontSizePx));
                 }
 
-                if (mBook.getMargin() != 0) {
-                    mCurrentMarginSizeEm = mBook.getMargin();
-                    ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeMarginFuncEm(mCurrentMarginSizeEm));
+                if (mBook.getWidthAndHeight() != 0) {
+                    mCurrentWidthAndHeight = mBook.getWidthAndHeight();
+                    mMarginChangeSeekBar.setProgress(mCurrentWidthAndHeight - mMinWidthAndHeight);
+                    ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeWidthAndHeightFuncEm(mCurrentWidthAndHeight));
                 }
             }
         });
@@ -365,6 +402,17 @@ public class EPUBActivity extends AppCompatActivity {
                 }
 
                 return (event.getAction() == MotionEvent.ACTION_MOVE);
+            }
+        });
+    }
+
+    //GUI Update methods
+    public void setUIPageData(final String pcurrentpage,final String plastpage) {
+
+        mCurrentPageTextView.post(new Runnable() {
+            @Override
+            public void run() {
+                mCurrentPageTextView.setText(pcurrentpage+"/"+plastpage);
             }
         });
     }

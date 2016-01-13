@@ -2087,6 +2087,9 @@ EPUBJS.Book.prototype.generatePagination = function(width, height) {
 
 // Process the pagination from a JSON array containing the pagelist
 EPUBJS.Book.prototype.loadPagination = function(pagelistJSON) {
+
+    console.log(pagelistJSON);
+
 	var pageList = JSON.parse(pagelistJSON);
 
 	if(pageList && pageList.length) {

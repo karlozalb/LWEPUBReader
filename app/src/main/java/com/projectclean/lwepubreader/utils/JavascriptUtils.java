@@ -39,11 +39,19 @@ public class JavascriptUtils {
         return func;
     }
 
+    public static String getChangeWidthAndHeightFuncEm(int pwidthheight){
+        //String func = "javascript:Book.setStyle(\"width\",\""+pwidthheight+"%\");Book.setStyle(\"height\",\""+pwidthheight+"%\");Book.setStyle(\"margin\",\""+(100-pwidthheight)/2+"\");";
+        //String func = "javascript:document.getElementById('area').style.width='"+pwidthheight+"%';document.getElementById('area').style.height='"+pwidthheight+"%';";
+        String func = "javascript: setBookWidthAndHeight("+pwidthheight+","+pwidthheight+");";
+        return func;
+    }
+
     public static String getOnPageChangedFunc(){
         //return "javascript:Book.on('book:locationChanged', function(location){ Android.showCurrentPageData(location.anchorPage, location.pageRange, location.percentage); });";
 
         return "javascript:Book.on('renderer:locationChanged', function(locationCfi){"+
             "Android.saveCurrentPageData(locationCfi);"+
+            "Android.setUIPageData(Book.pagination.pageFromCfi(locationCfi),Book.pagination.lastPage);"+
         "});";
 
         //return "javascript:Book.on('book:pageChanged', function(location){ console.log(\"ñksdjgakjlsdgfaklaskgja\"); });";

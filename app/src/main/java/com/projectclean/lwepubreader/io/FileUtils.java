@@ -2,6 +2,8 @@ package com.projectclean.lwepubreader.io;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.util.LinkedList;
 
 /**
@@ -111,6 +114,20 @@ public class FileUtils {
         try {
             outputStream = mContext.openFileOutput(pfilename, Context.MODE_PRIVATE);
             outputStream.write(pcontent.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveImageToInternalStorageFile(String pfilename,InputStream pstream){
+        FileOutputStream outputStream;
+
+        Bitmap bmp = BitmapFactory.decodeStream(pstream);
+
+        try {
+            outputStream = mContext.openFileOutput(pfilename, Context.MODE_PRIVATE);
+            bmp.compress(Bitmap.CompressFormat.JPEG,75,outputStream);
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();

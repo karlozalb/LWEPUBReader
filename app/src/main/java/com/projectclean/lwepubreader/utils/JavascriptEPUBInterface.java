@@ -6,6 +6,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
+import com.projectclean.lwepubreader.activities.EPUBActivity;
 import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 
@@ -35,6 +36,11 @@ public class JavascriptEPUBInterface {
         Log.i("LWEPUB","pcurrentpageconfig: "+pcurrentpageconfig);
         mBook.setBookState(pcurrentpageconfig);
         mBook.save();
+    }
+
+    @JavascriptInterface
+    public void setUIPageData(String pcurrentpage,String plastpage){
+        ((EPUBActivity)mContext).setUIPageData(pcurrentpage,plastpage);
     }
 
     @JavascriptInterface

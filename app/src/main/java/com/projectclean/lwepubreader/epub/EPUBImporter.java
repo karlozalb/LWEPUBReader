@@ -1,6 +1,7 @@
 package com.projectclean.lwepubreader.epub;
 
 import android.app.Activity;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -12,6 +13,8 @@ import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
 import com.projectclean.lwepubreader.utils.DateTimeUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,10 +27,12 @@ public class EPUBImporter {
     private int mCurrentProgress,mGoalProgress;
     private IProgressListener mProgressListener;
     private FileUtils mFileUtils;
+    private Activity mActivity;
 
     public EPUBImporter(Activity pactivity){
         mThumbGenerator = new CoverThumbGenerator(pactivity,this);
         mFileUtils = FileUtils.getInstance(pactivity);
+        mActivity = pactivity;
     }
 
     public void setProgressListener(Object plistener){
@@ -79,7 +84,18 @@ public class EPUBImporter {
                         newBook.setBookPath(epubLoader.getPath());
                         newBook.setBookFileName(mFileUtils.getFileName(newBook.getBookPath()));
                         newBook.setDateAdded(DateTimeUtils.getCurrentDate());
-                        mThumbGenerator.addTask(epubLoader.getPath(),newBook);
+                        //mThumbGenerator.addTask(epubLoader.getPath(),newBook);
+                        InputStream coverStream = epubLoader.getBookCover();
+                        if (coverStream == null) {
+                            try {
+                                coverStream = mActivity.getAssets().open("epub-placeholder.jpg");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        mFileUtils.saveImageToInternalStorageFile(newBook.getBookFileName() + ".jpg", coverStream);
+                        newBook.setBookCover(newBook.getBookFileName()+".jpg");
+                        newBook.save();
                     }
                 }
             };

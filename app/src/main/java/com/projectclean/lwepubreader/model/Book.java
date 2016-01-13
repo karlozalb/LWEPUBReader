@@ -16,6 +16,8 @@ public class Book extends SugarRecord {
     int mFontSize;
     float mMargin;
 
+    int mWidthAndHeight;
+
     public Book(){
 
     }
@@ -99,4 +101,18 @@ public class Book extends SugarRecord {
     public void setBookFileName(String bookFileName) {
         this.bookFileName = bookFileName;
     }
+
+    public int getWidthAndHeight() {
+        return mWidthAndHeight;
+    }
+
+    public void setWidthAndHeight(int pwidthAndHeight) {
+        this.mWidthAndHeight = pwidthAndHeight;
+    }
+
+    public String toString(){
+        return "Author:"+author+" - Title:"+title+" - WidthAndHeight:"+mWidthAndHeight+" - Font size:"+mFontSize;
+    }
+
+
 }
