@@ -67,4 +67,8 @@ public class JavascriptUtils {
         //return "javascript:Book.on('book:pageChanged', function(location){ console.log(\"ñksdjgakjlsdgfaklaskgja\"); });";
     }
 
+    public static String getSelectedTextFunc(){
+        return "javascript:getSelectedText()";
+    }
+
 }

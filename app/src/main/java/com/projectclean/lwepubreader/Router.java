@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.projectclean.lwepubreader.activities.EPUBActivity;
 import com.projectclean.lwepubreader.fragments.GenericFragment;
@@ -50,7 +51,7 @@ public class Router {
     }
 
     private static void setFragment(Activity pcontext,Fragment pfragment){
-        FragmentManager fragmentManager = ((ActionBarActivity)pcontext).getSupportFragmentManager();
+        FragmentManager fragmentManager = ((AppCompatActivity)pcontext).getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.main_fragment_container, pfragment);
         transaction.commit();

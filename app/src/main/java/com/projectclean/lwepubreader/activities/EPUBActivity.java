@@ -1,21 +1,29 @@
 package com.projectclean.lwepubreader.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.projectclean.lwepubreader.R;
+import com.projectclean.lwepubreader.customviews.CustomWebView;
 import com.projectclean.lwepubreader.model.Book;
+import com.projectclean.lwepubreader.translation.ITranslationCallBack;
+import com.projectclean.lwepubreader.translation.TranslationProvider;
 import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.projectclean.lwepubreader.utils.ScreenUtils;
@@ -27,12 +35,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class EPUBActivity extends AppCompatActivity {
+public class EPUBActivity extends AppCompatActivity implements ITranslationCallBack {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -125,11 +135,16 @@ public class EPUBActivity extends AppCompatActivity {
     /* Sugar record model object */
     private Book mBook;
 
+    /* Translation provider */
+    private TranslationProvider mTranslationProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_epub);
+
+        mTranslationProvider = new TranslationProvider(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -153,6 +168,7 @@ public class EPUBActivity extends AppCompatActivity {
             }
 
             ((WebView) mContentView).loadDataWithBaseURL("file:///android_asset/", htmlWebSite, "text/html", "UTF-8", null);
+            //((WebView) mContentView).loadUrl("http://www.google.es");
             setWebViewConfiguration();
         }
 
@@ -299,6 +315,7 @@ public class EPUBActivity extends AppCompatActivity {
         webView.setVerticalScrollBarEnabled(false);
 
         webView.setWebViewClient(new WebViewClient() {
+
             public void onPageFinished(WebView view, String url) {
                 String loadEpub = "javascript: var Book = ePub({ spread: \"none\" }); Book.open(\"file:///" + mEPUBPath + "\");";
 
@@ -332,11 +349,11 @@ public class EPUBActivity extends AppCompatActivity {
                     try {
                         String loadPagination = "javascript: Book.loadPagination('" + IOUtils.toString(new FileInputStream(new File(getFilesDir().getPath() + "/" + mBook.getBookFileName() + ".json"))) + "');";
                         loadPagination += "Book.pageListReady.then(function(pageList){" +
-                                    "console.log('Pagination loaded correctly.');" +
+                                "console.log('Pagination loaded correctly.');" +
                                 "});";
                         webView.loadUrl(loadPagination);
                     } catch (IOException e) {
-                        Log.e("LWEPUB",e.getMessage());
+                        Log.e("LWEPUB", e.getMessage());
                     }
                 }
 
@@ -412,8 +429,23 @@ public class EPUBActivity extends AppCompatActivity {
         mCurrentPageTextView.post(new Runnable() {
             @Override
             public void run() {
-                mCurrentPageTextView.setText(pcurrentpage+"/"+plastpage);
+                mCurrentPageTextView.setText(pcurrentpage + "/" + plastpage);
             }
         });
+    }
+
+    public void setSelectedText(String pselectedtext){
+        try {
+            mTranslationProvider.translateFromEnglishToSpanish(pselectedtext, this);
+        }catch (IOException e){
+            Log.e("LWEPUB",e.getMessage().toString());
+        }
+    }
+
+    @Override
+    public void setTranslationResponse(String pdata) {
+        Intent intent = new Intent(this,TranslationActivity.class);
+        intent.putExtra(TranslationActivity.TRANSLATION_CONTENT,pdata);
+        startActivity(intent);
     }
 }

@@ -11,6 +11,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 
@@ -127,10 +128,14 @@ public class FileUtils {
 
         try {
             outputStream = mContext.openFileOutput(pfilename, Context.MODE_PRIVATE);
-            bmp.compress(Bitmap.CompressFormat.JPEG,75,outputStream);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 75, outputStream);
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public InputStream getInputStreamFromInternalStorage(String pfilename)throws IOException{
+        return mContext.openFileInput(pfilename);
     }
 }
