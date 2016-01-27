@@ -3,36 +3,57 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:descendantFocusability="blocksDescendants"
-    android:padding="15dp"
+    android:padding="5dp"
     android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/mylibrary_item_cover"
         android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:contentDescription="book cover thumbnail" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_weight="3"
         android:layout_width="0dp"
-        android:layout_height="80dp"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/mylibrary_item_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nothing to show buddy!"
-            android:textSize="20dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/mylibrary_item_author"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="John Doe"
-            android:textSize="14dp" />
+            <TextView
+                android:id="@+id/mylibrary_item_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nothing to show buddy!"
+                android:textSize="20dp"
+                android:ellipsize="marquee"
+                android:fadingEdge="horizontal"
+                android:lines="1"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:scrollHorizontally="true"
+                android:singleLine="true"/>
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/mylibrary_item_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="John Doe"
+                android:textSize="14dp" />
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/book_completion_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_gravity="bottom" />
+
+    </FrameLayout>
+
 
 </LinearLayout>

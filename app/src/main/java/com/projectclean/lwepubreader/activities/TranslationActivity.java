@@ -3,7 +3,6 @@ package com.projectclean.lwepubreader.activities;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.projectclean.lwepubreader.R;
 
@@ -25,7 +24,7 @@ public class TranslationActivity extends AppCompatActivity{
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_translation);
+        setContentView(R.layout.layout_fragment_dialog_translation);
 
         mWebView = (WebView)findViewById(R.id.translation_webview);
 
@@ -54,13 +53,5 @@ public class TranslationActivity extends AppCompatActivity{
         mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         mWebView.setHorizontalScrollBarEnabled(false);
         mWebView.setVerticalScrollBarEnabled(false);
-
-        /*mWebView.setWebViewClient(new WebViewClient() {
-
-            public void onPageFinished(WebView view, String url) {
-                if (mHtmlContent != null && mHtmlContent.length() > 0) mWebView.loadUrl("javascript:populateMain('hola');");
-            }
-        });*/
-
     }
 }
