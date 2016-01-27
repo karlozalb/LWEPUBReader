@@ -5,4 +5,11 @@
     <string name="title_activity_epub">EPUBActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="translation_dialog_title">Traducción: </string>
+
+    <string name="recent_tab_title">Recientes</string>
+    <string name="mylibrary_tab_title">Biblioteca</string>
+    <string name="read_tab_title">Leidos</string>
+    <string name="most_recent_tab_title">Más recientes</string>
 </resources>

@@ -31,9 +31,13 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     FileUtils mFileUtils;
     ListView myLibraryListView;
 
+    public static final int MOST_RECENT_LIMIT = 3;
+    public static final String FRAGMENT_QUERY = "F_QUERY";
+    String mQuery;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_mylibrary_layout,container,false);
+        View v = inflater.inflate(R.layout.layout_fragment_mylibrary,container,false);
 
         setFragmentParams();
 
@@ -65,9 +69,24 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         return v;
     }
 
+    public void setFragmentParams(){
+
+        Bundle b = getArguments();
+
+        if (b!=null) {
+            super.setFragmentParams();
+            mQuery = b.getString(FRAGMENT_QUERY);
+        }
+    }
+
+    public void onResume(){
+        super.onResume();
+        mMyLibraryAdapter.updateListUI();
+    }
+
     public void loadCurrentLibrary(){
         try {
-            List<Book> books = Book.findWithQuery(Book.class, "SELECT * FROM BOOK");
+            List<Book> books = Book.findWithQuery(Book.class, mQuery);
 
             mMyLibraryAdapter.clear();
 

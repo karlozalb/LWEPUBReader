@@ -2,6 +2,8 @@ package com.projectclean.lwepubreader.model;
 
 import com.orm.SugarRecord;
 
+import java.util.Date;
+
 /**
  * Created by Carlos Albaladejo Pérez on 22/12/2015.
  */
@@ -9,14 +11,23 @@ public class Book extends SugarRecord {
 
     String author, title;
     String bookState, bookPath, bookCover;
-    String dateAdded, dateLastRead;
+
+    String dateAdded, dateLastReading;
+    float bookCompletion;
 
     String bookFileName;
 
+    //Book's aestethics
     int mFontSize;
     float mMargin;
 
     int mWidthAndHeight;
+
+    //Is this book masked as read?
+    boolean read;
+
+    //Data only for the app behaviour.
+    int mostRecentOrder;
 
     public Book(){
 
@@ -71,11 +82,11 @@ public class Book extends SugarRecord {
     }
 
     public String getDateLastRead() {
-        return dateLastRead;
+        return dateLastReading;
     }
 
     public void setDateLastRead(String mDateLastRead) {
-        this.dateLastRead = mDateLastRead;
+        this.dateLastReading = mDateLastRead;
     }
 
     public int getFontSize() {
@@ -110,9 +121,32 @@ public class Book extends SugarRecord {
         this.mWidthAndHeight = pwidthAndHeight;
     }
 
+    public float getBookCompletion() {
+        return bookCompletion;
+    }
+
+    public void setBookCompletion(float bookCompletion) {
+        this.bookCompletion = bookCompletion;
+    }
+
     public String toString(){
         return "Author:"+author+" - Title:"+title+" - WidthAndHeight:"+mWidthAndHeight+" - Font size:"+mFontSize;
     }
 
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean mRead) {
+        this.read = mRead;
+    }
+
+    public int getMostRecentOrder() {
+        return mostRecentOrder;
+    }
+
+    public void setMostRecentOrder(int mostRecentOrder) {
+        this.mostRecentOrder = mostRecentOrder;
+    }
 
 }

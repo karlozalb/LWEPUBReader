@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.pcg.epubloader.EPUBLoaderHelper;
 import com.pcg.exceptions.EPUBException;
+import com.projectclean.lwepubreader.fragments.MyLibraryFragment;
 import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
@@ -84,11 +85,12 @@ public class EPUBImporter {
                         newBook.setBookPath(epubLoader.getPath());
                         newBook.setBookFileName(mFileUtils.getFileName(newBook.getBookPath()));
                         newBook.setDateAdded(DateTimeUtils.getCurrentDate());
-                        //mThumbGenerator.addTask(epubLoader.getPath(),newBook);
+                        newBook.setMostRecentOrder(MyLibraryFragment.MOST_RECENT_LIMIT + 1);
+
                         InputStream coverStream = epubLoader.getBookCover();
                         if (coverStream == null) {
                             try {
-                                coverStream = mActivity.getAssets().open("epub-placeholder.jpg");
+                                coverStream = mActivity.getAssets().open("epub-placeholder.png");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -96,6 +98,7 @@ public class EPUBImporter {
                         mFileUtils.saveImageToInternalStorageFile(newBook.getBookFileName() + ".jpg", coverStream);
                         newBook.setBookCover(newBook.getBookFileName()+".jpg");
                         newBook.save();
+                        addProgress();
                     }
                 }
             };

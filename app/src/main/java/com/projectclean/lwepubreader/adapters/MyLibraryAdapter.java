@@ -10,10 +10,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.pcg.epubloader.EPUBLoaderHelper;
@@ -39,12 +42,14 @@ public class MyLibraryAdapter extends BaseAdapter {
     private Activity mActivity;
     private LayoutInflater mLayoutInflater;
     private LinkedList<Book> mBooks;
+    private LinkedList<MyLibraryBookListHolder> mHolders;
     private String mPrivateFilesDir;
 
     public MyLibraryAdapter(Activity pactivity){
         mActivity = pactivity;
         mLayoutInflater = pactivity.getLayoutInflater();
         mBooks = new LinkedList<Book>();
+        mHolders = new LinkedList<MyLibraryBookListHolder>();
 
         mPrivateFilesDir = mActivity.getFilesDir().getAbsolutePath();
     }
@@ -82,7 +87,6 @@ public class MyLibraryAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
-
         final Book currentBook = mBooks.get(position);
         final MyLibraryBookListHolder holder;
 
@@ -93,6 +97,9 @@ public class MyLibraryAdapter extends BaseAdapter {
             holder.AUTHOR = (TextView)convertView.findViewById(R.id.mylibrary_item_author);
             holder.TITLE = (TextView)convertView.findViewById(R.id.mylibrary_item_title);
             holder.COVER = (ImageView)convertView.findViewById(R.id.mylibrary_item_cover);
+            holder.PROGRESS_BAR = (ProgressBar) convertView.findViewById(R.id.book_completion_progress_bar);
+
+            mHolders.add(holder);
 
             convertView.setTag(holder);
         }else{ //Recycled view
@@ -102,74 +109,28 @@ public class MyLibraryAdapter extends BaseAdapter {
         holder.AUTHOR.setText(currentBook.getAuthor());
         holder.TITLE.setText(currentBook.getTitle());
         Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).into(holder.COVER);
-
-
-        //if (holder.TASK != null) holder.TASK.cancel(true);
-
-        /*final List<Book> book = Book.find(Book.class, "BOOK_PATH = ?", dataNode.getEbookPath());
-
-        holder.TASK = new AsyncTask<String, Integer, String[]>(){
-
-            protected String[] doInBackground(String... ppath) {
-                String[] result = new String[3];
-
-                if (book != null && book.size() > 0){
-                    Log.i("LWEPUB", "Book stored in database.");
-                    result[0] = book.get(0).getAuthor();
-                    result[1] = book.get(0).getTitle();
-                    result[2] = book.get(0).getBookPath();
-                }else {
-                    Log.i("LWEPUB", "New book!.");
-                    holder.LOADER_HELPER = new EPUBLoaderHelper(ppath[0]);
-
-                    try {
-                        String[] authors = holder.LOADER_HELPER.getPackage().getMetadata().getBookAuthor();
-                        result[0] = "";
-
-                        if (authors.length == 0) {
-                            result[0] = "Unknown author";
-                        } else if (authors.length == 1) {
-                            result[0] = authors[0];
-                        } else {
-                            for (int i = 0; i < authors.length - 1; i++) {
-                                result[0] += authors[i] + " & ";
-                            }
-                            result[0] += authors[authors.length - 1];
-                        }
-                        result[1] = holder.LOADER_HELPER.getPackage().getMetadata().getBookTitle();
-                        result[2] = ppath[0];
-                    } catch (EPUBException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                return result;
-            }
-
-            protected void onProgressUpdate(Integer... progress) {
-            }
-
-            protected void onPostExecute(String[] presult) {
-                if (!isCancelled()){
-                    holder.AUTHOR_STRING = presult[0];
-                    holder.TITLE_STRING = presult[1];
-                    holder.EPUB_PATH = presult[2];
-
-                    holder.AUTHOR.setText(presult[0]);
-                    holder.TITLE.setText(presult[1]);
-                    holder.THUMB_GENERATOR.addTask(holder);
-                }
-            }
-        };
-        holder.TASK.execute(dataNode.getEbookPath());*/
+        holder.PROGRESS_BAR.setProgress((int)(currentBook.getBookCompletion() * 100));
+        holder.BOOK = currentBook;
 
         return convertView;
+    }
+
+    /**
+     * Updates the book completion progress bar.
+     */
+    public void updateListUI(){
+        for (MyLibraryBookListHolder holder : mHolders) {
+            holder.PROGRESS_BAR.setProgress((int)(holder.BOOK.getBookCompletion() * 100));
+        }
     }
 
     public class MyLibraryBookListHolder{
         //View items
         public TextView TITLE,AUTHOR;
         public ImageView COVER;
+        public ProgressBar PROGRESS_BAR;
+
+        public Book BOOK;
 
         //Additional data
         public String TITLE_STRING,AUTHOR_STRING,EPUB_PATH;

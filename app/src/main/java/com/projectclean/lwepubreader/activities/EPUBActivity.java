@@ -2,7 +2,6 @@ package com.projectclean.lwepubreader.activities;
 
 import android.annotation.SuppressLint;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -10,29 +9,30 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.projectclean.lwepubreader.R;
+import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.model.Book;
+import com.projectclean.lwepubreader.translation.ITranslationCallBack;
+import com.projectclean.lwepubreader.translation.TranslationProvider;
+import com.projectclean.lwepubreader.utils.DateTimeUtils;
 import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.projectclean.lwepubreader.utils.ScreenUtils;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class EPUBActivity extends AppCompatActivity {
+public class EPUBActivity extends AppCompatActivity implements ITranslationCallBack {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -125,11 +125,16 @@ public class EPUBActivity extends AppCompatActivity {
     /* Sugar record model object */
     private Book mBook;
 
+    /* Translation provider */
+    private TranslationProvider mTranslationProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_epub);
+        setContentView(R.layout.layout_activity_epub);
+
+        mTranslationProvider = new TranslationProvider(this);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -139,20 +144,45 @@ public class EPUBActivity extends AppCompatActivity {
         mMarginChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_margin_change);
         mCurrentPageTextView = (TextView)findViewById(R.id.page_number_indicator);
 
+        findViewById(R.id.debug_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String script = "javascript:Book.gotoCfi('epubcfi(/6/34[id1123]!4/44/1:92)');";
+                ((WebView)mContentView).loadUrl(script);
+            }
+        });
+
         Bundle params = getIntent().getExtras();
         if (params != null){
             mEPUBPath = params.getString(EPUBPATHEXTRA);
 
             mBook = Book.find(Book.class, "BOOK_PATH = ?", mEPUBPath).get(0);
 
-            String htmlWebSite = "";
+            mBook.setDateLastRead(DateTimeUtils.getCurrentDate());
+            mBook.setMostRecentOrder(1);
+            mBook.save();
+
+            List<Book> books = Book.find(Book.class,"BOOK_PATH != ?",mBook.getBookPath());
+            for (Book b : books){
+                b.setMostRecentOrder(b.getMostRecentOrder()+1);
+                b.save();
+            }
+
+            String htmlWebSitePart1 = "",htmlWebSitePart2 = "",htmlWebSitePart3 = "";
+
+            float testWidth = 0.6f;
+            float testHeight = 0.6f;
+
             try {
-                htmlWebSite = IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html")));
+                htmlWebSitePart1 = IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton_formatted_start.html")));
+                htmlWebSitePart2 = String.format(IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton_formatted_script.html"))),"'file:///" + mEPUBPath+"'",""+(int)(768 * testWidth),""+(int)(1280 * testHeight),""+(1-testHeight)*100,""+(1-testWidth)*100,"'"+mBook.getBookState()+"'");
+                htmlWebSitePart3 = IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton_formatted_end.html")));
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            ((WebView) mContentView).loadDataWithBaseURL("file:///android_asset/", htmlWebSite, "text/html", "UTF-8", null);
+            ((WebView) mContentView).loadDataWithBaseURL("file:///android_asset/", htmlWebSitePart1 + htmlWebSitePart2 + htmlWebSitePart3, "text/html", "UTF-8", null);
+            //((WebView) mContentView).loadUrl("http://www.google.es");
             setWebViewConfiguration();
         }
 
@@ -240,7 +270,8 @@ public class EPUBActivity extends AppCompatActivity {
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(100);
+        //delayedHide(100);
+        hide();
     }
 
     private void toggle() {
@@ -290,21 +321,37 @@ public class EPUBActivity extends AppCompatActivity {
 
         final WebView webView = (WebView)mContentView;
 
+        WebView.setWebContentsDebuggingEnabled(true);
+
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().setAllowContentAccess(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+        webView.getSettings().setDomStorageEnabled(true);
         webView.setHorizontalScrollBarEnabled(false);
         webView.setVerticalScrollBarEnabled(false);
 
-        webView.setWebViewClient(new WebViewClient() {
-            public void onPageFinished(WebView view, String url) {
-                String loadEpub = "javascript: var Book = ePub({ spread: \"none\" }); Book.open(\"file:///" + mEPUBPath + "\");";
+        /*webView.setWebViewClient(new WebViewClient() {
 
-                if (mBook.getBookState() != null && mBook.getBookState().length() > 0) {
-                    loadEpub += "Book.gotoCfi('" + mBook.getBookState() + "');";
-                }
+            public void onPageFinished(WebView view, String url) {
+                String loadEpub = "javascript: var Book = ePub({ spread: \"none\" , storage: \"true\", restore: \"true\", reload: \"true\" }); Book.open(\"file:///" + mEPUBPath + "\");"; /*, previousLocationCfi: "epubcfi(/6/34[id1123]!4/44/1:92)" }*/
+
+                /*loadEpub += "Book.ready.all.then(function(){\n" +
+                        "              // Load in stored locations from json or local storage\n" +
+                        "              var key = Book.settings.bookKey+'-locations'+'-locations';\n" +
+                        "              var stored = localStorage.getItem(key);\n" +
+                        "              if (stored) {\n" +
+                        "                return Book.locations.load(stored);\n" +
+                        "              } else {\n" +
+                        "                // Or generate the locations on the fly\n" +
+                        "                // Can pass an option number of chars to break sections by\n" +
+                        "                // default is 150 chars\n" +
+                        "                return Book.locations.generate(1600);\n" +
+                        "              }\n" +
+                        "            }).then(function(locations){" +
+                        "                console.log(locations);"+
+                        "            });";
 
                 File file = new File(getFilesDir().getPath() + "/" + mBook.getBookFileName() + ".json");
                 if (!file.exists()) {
@@ -313,6 +360,11 @@ public class EPUBActivity extends AppCompatActivity {
                             "console.log('Pagination created correctly.');" +
                             "});";
                     loadEpub += "Book.ready.all.then(function(){ Book.generatePagination(); });";
+                }
+
+                if (mBook.getBookState() != null && mBook.getBookState().length() > 0) {
+                    Log.i("LWEPUB","Current EPUB Cfi: "+mBook.getBookState());
+                    //loadEpub += "Book.gotoCfi('" + mBook.getBookState() + "',true);";
                 }
 
                 loadEpub += "var rendered = Book.renderTo(\"area\");";
@@ -332,11 +384,11 @@ public class EPUBActivity extends AppCompatActivity {
                     try {
                         String loadPagination = "javascript: Book.loadPagination('" + IOUtils.toString(new FileInputStream(new File(getFilesDir().getPath() + "/" + mBook.getBookFileName() + ".json"))) + "');";
                         loadPagination += "Book.pageListReady.then(function(pageList){" +
-                                    "console.log('Pagination loaded correctly.');" +
+                                "console.log('Pagination loaded correctly.');" +
                                 "});";
                         webView.loadUrl(loadPagination);
                     } catch (IOException e) {
-                        Log.e("LWEPUB",e.getMessage());
+                        Log.e("LWEPUB", e.getMessage());
                     }
                 }
 
@@ -352,7 +404,7 @@ public class EPUBActivity extends AppCompatActivity {
                     ((WebView) mContentView).loadUrl(JavascriptUtils.getChangeWidthAndHeightFuncEm(mCurrentWidthAndHeight));
                 }
             }
-        });
+        });*/
 
         webView.addJavascriptInterface(new JavascriptEPUBInterface(this, mBook), "Android");
 
@@ -409,11 +461,35 @@ public class EPUBActivity extends AppCompatActivity {
     //GUI Update methods
     public void setUIPageData(final String pcurrentpage,final String plastpage) {
 
+        try {
+            int currentPage = Integer.parseInt(pcurrentpage);
+            int lastpage = Integer.parseInt(plastpage);
+
+            mBook.setBookCompletion((float)currentPage/(float)lastpage);
+            mBook.save();
+
+        }catch (NumberFormatException exception){
+            //Undefined detected somewhere!
+        }
+
         mCurrentPageTextView.post(new Runnable() {
             @Override
             public void run() {
-                mCurrentPageTextView.setText(pcurrentpage+"/"+plastpage);
+                mCurrentPageTextView.setText(pcurrentpage + "/" + plastpage);
             }
         });
+    }
+
+    public void setSelectedText(String pselectedtext){
+        try {
+            mTranslationProvider.translateFromEnglishToSpanish(pselectedtext, this);
+        }catch (IOException e){
+            Log.e("LWEPUB",e.getMessage().toString());
+        }
+    }
+
+    @Override
+    public void setTranslationResponse(String pdata) {
+        Router.showTranslationFragmentDialog(this,pdata);
     }
 }

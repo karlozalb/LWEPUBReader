@@ -27,8 +27,8 @@ public class JavascriptEPUBInterface {
 
     @JavascriptInterface
     public void showCurrentPageData(String panchorpage,String ppagerange,String ppercentage){
-        Log.i("LWEPUB","anchorPage: "+panchorpage+" - pageRange: "+ppagerange+" - percentage:"+ppercentage);
-        Toast.makeText(mContext,"ASFASFAF",Toast.LENGTH_SHORT);
+        Log.i("LWEPUB", "anchorPage: " + panchorpage + " - pageRange: " + ppagerange + " - percentage:" + ppercentage);
+        Toast.makeText(mContext, "ASFASFAF", Toast.LENGTH_SHORT);
     }
 
     @JavascriptInterface
@@ -40,12 +40,18 @@ public class JavascriptEPUBInterface {
 
     @JavascriptInterface
     public void setUIPageData(String pcurrentpage,String plastpage){
-        ((EPUBActivity)mContext).setUIPageData(pcurrentpage,plastpage);
+        ((EPUBActivity)mContext).setUIPageData(pcurrentpage, plastpage);
     }
 
     @JavascriptInterface
     public void saveBookPagination(String pepubpagination){
-        mFileUtils.saveStringToInternalStorageFile(mBook.getBookFileName()+ ".json",pepubpagination);
+        mFileUtils.saveStringToInternalStorageFile(mBook.getBookFileName() + ".json", pepubpagination);
+    }
+
+    @JavascriptInterface
+    public void setSelectedText(String pselectedtext){
+        Log.i("LWEPUB","pselectedtext:"+pselectedtext);
+        ((EPUBActivity)mContext).setSelectedText(pselectedtext);
     }
 
 }

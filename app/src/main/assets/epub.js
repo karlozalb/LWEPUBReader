@@ -1811,7 +1811,7 @@ EPUBJS.Book.prototype.open = function(bookPath, forceReload){
 		//-- Will load previous package json, or re-unpack if error
 		epubpackage.then(function(packageXml) {
 			var identifier = book.packageIdentifier(packageXml);
-			var restored = book.restore(identifier);
+			var restored = book.restore(''+identifier);
 
 			if(!restored) {
 				book.unpack(packageXml);
@@ -1883,8 +1883,10 @@ EPUBJS.Book.prototype.unpack = function(packageXml){
 	book.spine = book.contents.spine;
 	book.spineIndexByURL = book.contents.spineIndexByURL;
 	book.metadata = book.contents.metadata;
+	console.log('book.settings.bookKey:'+book.settings.bookKey);
 	if(!book.settings.bookKey) {
-		book.settings.bookKey = book.generateBookKey(book.metadata.identifier);
+		book.settings.bookKey = book.generateBookKey(''+book.metadata.identifier);
+		console.log('book.settings.bookKey:'+book.settings.bookKey);
 	}
 
 	//-- Set Globbal Layout setting based on metadata
@@ -2087,9 +2089,6 @@ EPUBJS.Book.prototype.generatePagination = function(width, height) {
 
 // Process the pagination from a JSON array containing the pagelist
 EPUBJS.Book.prototype.loadPagination = function(pagelistJSON) {
-
-    console.log(pagelistJSON);
-
 	var pageList = JSON.parse(pagelistJSON);
 
 	if(pageList && pageList.length) {
@@ -2167,9 +2166,7 @@ EPUBJS.Book.prototype.listenToRenderer = function(renderer){
 
 			// TODO: Add event for first and last page.
 			// (though last is going to be hard, since it could be several reflowed pages long)
-		}else{
-      console.log("pagelist is 0");
-    }
+		}
 	}.bind(this));
 
 	renderer.on("render:loaded", this.loadChange.bind(this));
@@ -2325,6 +2322,7 @@ EPUBJS.Book.prototype.isSaved = function(bookKey) {
 
 // Generates the Book Key using the identifer in the manifest or other string provided
 EPUBJS.Book.prototype.generateBookKey = function(identifier){
+console.log('identifier sent as parameter: '+identifier);
 	return "epubjs:" + EPUBJS.VERSION + ":" + window.location.host + ":" + identifier;
 };
 
@@ -2373,8 +2371,6 @@ EPUBJS.Book.prototype.renderTo = function(elem){
 
 	// rendered.then(null, function(error) { console.error(error); });
 
-    console.log("libro renderizado");
-
 	return rendered;
 };
 
@@ -2397,7 +2393,7 @@ EPUBJS.Book.prototype.restore = function(identifier){
 	var book = this,
 			fetch = ['manifest', 'spine', 'metadata', 'cover', 'toc', 'spineNodeIndex', 'spineIndexByURL', 'globalLayoutProperties'],
 			reject = false,
-			bookKey = this.generateBookKey(identifier),
+			bookKey = this.generateBookKey(''+identifier),
 			fromStore = localStorage.getItem(bookKey),
 			len = fetch.length,
 			i;
@@ -2617,6 +2613,7 @@ EPUBJS.Book.prototype.gotoCfi = function(cfiString, defer){
 
 	if(!this.isRendered) {
 		console.warn("Not yet Rendered");
+		console.warn("previousLocationCfi: "+this.settings.previousLocationCfi+" - cfiString: "+cfiString);
 		this.settings.previousLocationCfi = cfiString;
 		return false;
 	}
@@ -2640,6 +2637,7 @@ EPUBJS.Book.prototype.gotoCfi = function(cfiString, defer){
 	this._moving = true;
 	//-- If same chapter only stay on current chapter
 	if(this.currentChapter && this.spinePos === spinePos){
+	    console.log("no hay cambio de capitulo.");
 		this.renderer.gotoCfi(cfi);
 		this._moving = false;
 		deferred.resolve(this.renderer.currentLocationCfi);
@@ -2651,10 +2649,12 @@ EPUBJS.Book.prototype.gotoCfi = function(cfiString, defer){
 		}
 
 		render = this.displayChapter(cfiString);
+   	    console.log("hay cambio de capitulo: cfiString -> "+cfiString);
 
 		render.then(function(rendered){
 			this._moving = false;
 			deferred.resolve(rendered.currentLocationCfi);
+	   	    console.log("render.then(function(rendered) -> "+rendered.currentLocationCfi);
 		}.bind(this));
 
 	}
@@ -5009,6 +5009,7 @@ EPUBJS.Locations.prototype.process = function(chapter) {
       var contents = doc.documentElement.querySelector("body");
       var counter = 0;
       var prev;
+      var cfi;
 
       this.sprint(contents, function(node) {
         var len = node.length;
@@ -5071,6 +5072,7 @@ EPUBJS.Locations.prototype.process = function(chapter) {
 };
 
 EPUBJS.Locations.prototype.sprint = function(root, func) {
+  var node;
 	var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
 
 	while ((node = treeWalker.nextNode())) {
@@ -6085,6 +6087,7 @@ EPUBJS.Renderer.prototype.Events = [
 	"renderer:chapterDisplayed",
 	"renderer:locationChanged",
 	"renderer:visibleLocationChanged",
+	"renderer:visibleRangeChanged",
 	"renderer:resized",
 	"renderer:spreads"
 ];

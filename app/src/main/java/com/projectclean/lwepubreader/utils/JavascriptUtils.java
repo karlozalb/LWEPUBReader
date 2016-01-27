@@ -5,8 +5,8 @@ package com.projectclean.lwepubreader.utils;
  */
 public class JavascriptUtils {
 
-    private static final String PREV_PAGE = "javascript:Book.prevPage();";
-    private static final String NEXT_PAGE = "javascript:Book.nextPage();";
+    private static final String PREV_PAGE = "javascript:book.prevPage();";
+    private static final String NEXT_PAGE = "javascript:book.nextPage();";
 
     public static final int EM = 1;
     public static final int PX = 2;
@@ -20,22 +20,22 @@ public class JavascriptUtils {
     }
 
     public static String getIncreaseFontFuncEm(float pem){
-        String func = "javascript:Book.setStyle(\"font-size\",\""+pem+"em\");";
+        String func = "javascript:book.setStyle(\"font-size\",\""+pem+"em\");";
         return func;
     }
 
     public static String getChangeFontSizeFuncPx(int ppx){
-        String func = "javascript:Book.setStyle(\"font-size\",\""+ppx+"px\");";
+        String func = "javascript:book.setStyle(\"font-size\",\""+ppx+"px\");";
         return func;
     }
 
     public static String getChangeMarginFuncPx(int ppx){
-        String func = "javascript:Book.setStyle(\"margin\",\""+ppx+"px\");";
+        String func = "javascript:book.setStyle(\"margin\",\""+ppx+"px\");";
         return func;
     }
 
     public static String getChangeMarginFuncEm(float pem){
-        String func = "javascript:Book.setStyle(\"margin\",\""+pem+"em\");";
+        String func = "javascript:book.setStyle(\"margin\",\""+pem+"em\");";
         return func;
     }
 
@@ -49,9 +49,9 @@ public class JavascriptUtils {
     public static String getOnPageChangedFunc(){
         //return "javascript:Book.on('book:locationChanged', function(location){ Android.showCurrentPageData(location.anchorPage, location.pageRange, location.percentage); });";
 
-        return "javascript:Book.on('renderer:locationChanged', function(locationCfi){"+
+        return "javascript:book.on('renderer:locationChanged', function(locationCfi){"+
             "Android.saveCurrentPageData(locationCfi);"+
-            "Android.setUIPageData(Book.pagination.pageFromCfi(locationCfi),Book.pagination.lastPage);"+
+            "Android.setUIPageData(book.pagination.pageFromCfi(locationCfi),book.pagination.lastPage);"+
         "});";
 
         //return "javascript:Book.on('book:pageChanged', function(location){ console.log(\"ñksdjgakjlsdgfaklaskgja\"); });";
@@ -60,11 +60,15 @@ public class JavascriptUtils {
     public static String getOnBookReadyFunc(){
         //return "javascript:Book.on('book:ready', function(location){ Android.showCurrentPageData(location.anchorPage, location.pageRange, location.percentage); });";
 
-        return "javascript:Book.on('renderer:chapterDisplayed', function(){"+
+        return "javascript:book.on('renderer:chapterDisplayed', function(){"+
                 "console.log(\"libro ready\");"+
                 "});";
 
         //return "javascript:Book.on('book:pageChanged', function(location){ console.log(\"ñksdjgakjlsdgfaklaskgja\"); });";
+    }
+
+    public static String getSelectedTextFunc(){
+        return "javascript:getSelectedText()";
     }
 
 }
