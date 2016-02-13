@@ -7,9 +7,32 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <android.support.design.widget.TabLayout
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:minHeight="?attr/actionBarSize"
+        android:title="@string/app_name">
+
+        <TextView
+            android:id="@+id/toolbar_title_tv"
+            android:text="@string/app_name"
+            android:textSize="18dp"
+            android:bufferType="spannable"
+            android:textColor="@color/skull_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.design.widget.TabLayout xmlns:android="http://schemas.android.com/apk/res/android"
        android:id="@+id/tab_layout"
-       android:layout_width="wrap_content"
+       android:background="@color/colorPrimary"
+        app:tabTextColor="#b2ffffff"
+        app:tabSelectedTextColor="@android:color/white"
+       android:layout_width="match_parent"
        android:layout_height="wrap_content"
        app:layout_scrollFlags="scroll|enterAlways"/>
 
@@ -18,7 +41,6 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </android.support.v4.view.ViewPager>
 </LinearLayout>
 

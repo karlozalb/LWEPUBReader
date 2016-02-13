@@ -3,12 +3,18 @@ package com.projectclean.lwepubreader.fragments;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.projectclean.lwepubreader.MainActivity;
 import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.R;
@@ -33,22 +39,49 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
 
     public static final int MOST_RECENT_LIMIT = 3;
     public static final String FRAGMENT_QUERY = "F_QUERY";
+    public static final String FLOATING_BUTTON_VISIBILITY = "F_FLOATING_BUTTON";
     String mQuery;
+
+    private int mCurrentLongClickSelectedItem;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.layout_fragment_mylibrary,container,false);
-
         setFragmentParams();
+
+        View v = inflater.inflate(mLayoutID, container, false);
 
         myLibraryListView = (ListView)v.findViewById(R.id.mylibrary_listview);
         mMyLibraryAdapter = new MyLibraryAdapter(getActivity());
+
         myLibraryListView.setAdapter(mMyLibraryAdapter);
 
         mFileUtils = FileUtils.getInstance(getActivity());
 
         loadCurrentLibrary();
 
+        setListeners();
+
+        FloatingActionButton updateButton = (FloatingActionButton) v.findViewById(R.id.btn_update_library);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    updateMyLibrary();
+                }
+        });
+
+        myLibraryListView.setItemsCanFocus(true);
+
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        myLibraryListView.setEmptyView(getActivity().findViewById(R.id.mylibrary_empty_textview));
+    }
+
+    public void setListeners(){
         myLibraryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -56,17 +89,15 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
             }
         });
 
-        FloatingActionButton updateButton = (FloatingActionButton)v.findViewById(R.id.btn_update_library);
-        updateButton.setOnClickListener(new View.OnClickListener() {
+        myLibraryListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onClick(View v) {
-                updateMyLibrary();
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                mCurrentLongClickSelectedItem = position;
+                return false;
             }
         });
 
-        myLibraryListView.setItemsCanFocus(true);
-
-        return v;
+        registerForContextMenu(myLibraryListView);
     }
 
     public void setFragmentParams(){
@@ -128,5 +159,39 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     @Override
     public void onProgressChanged(int pprogressdelta) {
 
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.listview_context_menu, menu);
+
+        int position = myLibraryListView.getSelectedItemPosition();
+
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Book b;
+        switch (item.getItemId()) {
+            case R.id.context_menu_view_details:
+                return true;
+            case R.id.context_menu_mask_as_read:
+                b = (Book)myLibraryListView.getItemAtPosition(mCurrentLongClickSelectedItem);
+                b.setRead(true);
+                b.save();
+                ((MainActivity)getActivity()).updateLists();
+                return true;
+            case R.id.context_menu_delete:
+                b = (Book)myLibraryListView.getItemAtPosition(mCurrentLongClickSelectedItem);
+                b.setDeleted(true);
+                b.save();
+                ((MainActivity)getActivity()).updateLists();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 }

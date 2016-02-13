@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">LWEPUBReader</string>
+    <string name="app_name">SwiftReader</string>
+    <string name="app_name_swiftreader">SwiftReader</string>
     <string name="mylibrary">Mi biblioteca</string>
 
     <string name="title_activity_epub">EPUBActivity</string>
@@ -8,8 +9,16 @@
 
     <string name="translation_dialog_title">Traducción: </string>
 
-    <string name="recent_tab_title">Recientes</string>
     <string name="mylibrary_tab_title">Biblioteca</string>
     <string name="read_tab_title">Leidos</string>
-    <string name="most_recent_tab_title">Más recientes</string>
+    <string name="most_recent_tab_title">Recientes</string>
+
+    <string name="context_menu_view_details_text">Ver detalles</string>
+    <string name="context_menu_mark_as_read_text">Marcar como leido</string>
+    <string name="context_menu_delete_text">Eliminar</string>
+
+    <string name="mylibrary_empty_text">Pulsa sobre el botón actualizar (abajo a la derecha) para añadir tus libros a la biblioteca.</string>
+    <string name="read_empty_text">Cuando acabes de leer un libro, aparecerá en esta lista</string>
+    <string name="most_recent_empty_text">Una vez empieces a leer un libro, se mostrará en esta lista :)</string>
+
 </resources>

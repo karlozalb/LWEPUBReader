@@ -31,6 +31,7 @@ import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,11 +46,14 @@ public class MyLibraryAdapter extends BaseAdapter {
     private LinkedList<MyLibraryBookListHolder> mHolders;
     private String mPrivateFilesDir;
 
+    private HashMap<Book,Integer> mIdMap;
+
     public MyLibraryAdapter(Activity pactivity){
         mActivity = pactivity;
         mLayoutInflater = pactivity.getLayoutInflater();
         mBooks = new LinkedList<Book>();
         mHolders = new LinkedList<MyLibraryBookListHolder>();
+        mIdMap = new HashMap<Book,Integer>();
 
         mPrivateFilesDir = mActivity.getFilesDir().getAbsolutePath();
     }
@@ -59,7 +63,14 @@ public class MyLibraryAdapter extends BaseAdapter {
     }
 
     public void addItems(List<Book> pnodes){
-        mBooks.addAll(pnodes);
+        for (int i=0;i<pnodes.size();i++) {
+            mIdMap.put(pnodes.get(i),i);
+            mBooks.add(pnodes.get(i));
+        }
+    }
+
+    public boolean hasStableIds(){
+        return true;
     }
 
     public void addItemAtPosition(int position,Book pnode){
@@ -82,7 +93,11 @@ public class MyLibraryAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return mIdMap.get(mBooks.get(position));
+    }
+
+    public boolean isEmpty(){
+        return mBooks.size() == 0;
     }
 
     @Override

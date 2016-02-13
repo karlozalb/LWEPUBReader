@@ -3,5 +3,6 @@
     <dimen name="activity_horizontal_margin">4dp</dimen>
     <dimen name="activity_vertical_margin">4dp</dimen>
 
-    <dimen name="floating_button_left_bottom_margin">10dp</dimen>
+    <dimen name="floating_button_right_bottom_margin">10dp</dimen>
+    <dimen name="empty_text_listview_padding">15dp</dimen>
 </resources>

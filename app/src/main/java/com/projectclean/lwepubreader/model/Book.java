@@ -9,6 +9,7 @@ import java.util.Date;
  */
 public class Book extends SugarRecord {
 
+    //Data about the book, not changeable.
     String author, title;
     String bookState, bookPath, bookCover;
 
@@ -17,17 +18,20 @@ public class Book extends SugarRecord {
 
     String bookFileName;
 
-    //Book's aestethics
-    int mFontSize;
-    float mMargin;
+    String locations;
 
-    int mWidthAndHeight;
-
-    //Is this book masked as read?
-    boolean read;
+    //Book's aestethics customized by the user.
+    //Why are these variables strings?? because I send them to Javascript methods, and I make de function calls as strings -> String funcCall = "javascript:doSomething("+param1+","+param2+");" etc.
+    String fontSize;
+    String height;
+    String width;
 
     //Data only for the app behaviour.
+    //Is this book marked as read?
+    boolean read;
+    boolean deleted;
     int mostRecentOrder;
+    int marginPercentage;
 
     public Book(){
 
@@ -53,8 +57,11 @@ public class Book extends SugarRecord {
         return bookState;
     }
 
-    public void setBookState(String mBookState) {
-        this.bookState = mBookState;
+    public void setBookState(String pcurrentcfi,String pfontsize,String pwidth,String pheight) {
+        bookState = pcurrentcfi;
+        width = pwidth;
+        height = pheight;
+        fontSize = pfontsize;
     }
 
     public String getBookPath() {
@@ -89,20 +96,12 @@ public class Book extends SugarRecord {
         this.dateLastReading = mDateLastRead;
     }
 
-    public int getFontSize() {
-        return mFontSize;
+    public String getFontSize() {
+        return fontSize;
     }
 
-    public void setFontSize(int mFontSize) {
-        this.mFontSize = mFontSize;
-    }
-
-    public float getMargin() {
-        return mMargin;
-    }
-
-    public void setMargin(float mMargin) {
-        this.mMargin = mMargin;
+    public void setFontSize(String pfontsize){
+        fontSize = pfontsize;
     }
 
     public String getBookFileName() {
@@ -113,24 +112,12 @@ public class Book extends SugarRecord {
         this.bookFileName = bookFileName;
     }
 
-    public int getWidthAndHeight() {
-        return mWidthAndHeight;
-    }
-
-    public void setWidthAndHeight(int pwidthAndHeight) {
-        this.mWidthAndHeight = pwidthAndHeight;
-    }
-
     public float getBookCompletion() {
         return bookCompletion;
     }
 
     public void setBookCompletion(float bookCompletion) {
         this.bookCompletion = bookCompletion;
-    }
-
-    public String toString(){
-        return "Author:"+author+" - Title:"+title+" - WidthAndHeight:"+mWidthAndHeight+" - Font size:"+mFontSize;
     }
 
     public boolean isRead() {
@@ -147,6 +134,46 @@ public class Book extends SugarRecord {
 
     public void setMostRecentOrder(int mostRecentOrder) {
         this.mostRecentOrder = mostRecentOrder;
+    }
+
+    public String toString(){
+        return "Author:"+author+" - Title:"+title;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public String getDateLastReading() {
+        return dateLastReading;
+    }
+
+    public String getLocations(){
+        return locations;
+    }
+
+    public void setLocations(String plocation){
+        locations = plocation;
+    }
+
+    public void setMarginPercentage(int pmargin){
+        marginPercentage = pmargin;
+    }
+
+    public int getMarginPercentage(){
+        return marginPercentage;
     }
 
 }

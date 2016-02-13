@@ -12,8 +12,8 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/mylibrary_empty_textview"
-            android:text="@string/mylibrary_empty_text"
+            android:id="@+id/most_recent_listview_empty_textview"
+            android:text="@string/most_recent_empty_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="@dimen/empty_text_listview_padding"
@@ -21,19 +21,10 @@
             android:gravity="center_vertical|center_horizontal" />
 
         <ListView
-            android:id="@+id/mylibrary_listview"
+            android:id="@+id/most_recent_listview"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
         </ListView>
     </RelativeLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:src="@drawable/refresh"
-        android:id="@+id/btn_update_library"
-        android:layout_gravity="bottom|end"
-        android:layout_width="wrap_content"
-        android:layout_margin="@dimen/floating_button_right_bottom_margin"
-        android:layout_height="wrap_content"
-        app:borderWidth="0dp"/>
 
 </android.support.design.widget.CoordinatorLayout>

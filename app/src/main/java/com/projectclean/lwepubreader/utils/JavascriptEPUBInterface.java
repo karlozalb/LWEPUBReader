@@ -32,9 +32,15 @@ public class JavascriptEPUBInterface {
     }
 
     @JavascriptInterface
-    public void saveCurrentPageData(String pcurrentpageconfig){
-        Log.i("LWEPUB","pcurrentpageconfig: "+pcurrentpageconfig);
-        mBook.setBookState(pcurrentpageconfig);
+    public void saveBookState(String pcurrentcfi,String pfontsize,String pwidth,String pheight){
+        Log.i("LWEPUB","CFI: "+pcurrentcfi+" FONTSIZE: "+pfontsize+" HEIGHT: "+pheight+" WIDTH: "+pwidth);
+        mBook.setBookState(pcurrentcfi, pfontsize, pwidth, pheight);
+        mBook.save();
+    }
+
+    @JavascriptInterface
+    public void saveBookLocations(String plocations){
+        mBook.setLocations(plocations);
         mBook.save();
     }
 
@@ -52,6 +58,11 @@ public class JavascriptEPUBInterface {
     public void setSelectedText(String pselectedtext){
         Log.i("LWEPUB","pselectedtext:"+pselectedtext);
         ((EPUBActivity)mContext).setSelectedText(pselectedtext);
+    }
+
+    @JavascriptInterface
+    public void setBookCompletion(String pbookcompletion){
+        mBook.setBookCompletion(Float.parseFloat(pbookcompletion));
     }
 
 }

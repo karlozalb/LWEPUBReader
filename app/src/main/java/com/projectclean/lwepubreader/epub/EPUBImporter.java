@@ -85,7 +85,9 @@ public class EPUBImporter {
                         newBook.setBookPath(epubLoader.getPath());
                         newBook.setBookFileName(mFileUtils.getFileName(newBook.getBookPath()));
                         newBook.setDateAdded(DateTimeUtils.getCurrentDate());
-                        newBook.setMostRecentOrder(MyLibraryFragment.MOST_RECENT_LIMIT + 1);
+                        newBook.setMostRecentOrder(-1);
+                        newBook.setMarginPercentage(85);
+                        newBook.setFontSize("14");
 
                         InputStream coverStream = epubLoader.getBookCover();
                         if (coverStream == null) {

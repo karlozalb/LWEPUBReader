@@ -1,11 +1,15 @@
 package com.projectclean.lwepubreader;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.widget.TextView;
 
 import com.projectclean.lwepubreader.adapters.CustomFragmentPagerAdapter;
 
@@ -14,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
     private CustomFragmentPagerAdapter mCustomPageAdapter;
+    private Toolbar mToolBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,53 +32,37 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mCustomPageAdapter);
 
         tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setTabTextColors(R.color.skull_white,R.color.skull_white);
 
-        /*mViewPager.setOnPageChangeListener(
-                new ViewPager.SimpleOnPageChangeListener() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        // When swiping between pages, select the
-                        // corresponding tab.
-                        getSupportActionBar().setSelectedNavigationItem(position);
-                    }
-                });
+        //Removes action bar shadow!!
+        //getSupportActionBar().setElevation(0);
 
-        ActionBar actionBar = getSupportActionBar();
+        mToolBar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolBar);
+        //If you want to set your new ActionBar
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        /*toolbar.setNavigationIcon(R.drawable.arrow_left);
+        toolbar.setLogo(R.mipmap.ic_launcher);*/
 
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        Spannable spannable = (Spannable)((TextView)findViewById(R.id.toolbar_title_tv)).getText();
 
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                mViewPager.setCurrentItem(tab.getPosition());
-            }
+        StyleSpan boldSpanEPUB = new StyleSpan( Typeface.BOLD );
+        ForegroundColorSpan colorSpanREADER = new ForegroundColorSpan(getResources().getColor(R.color.pcg_orange));
 
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // hide the given tab
-            }
-
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // probably ignore this event
-            }
-        };
-
-        // Add 3 tabs, specifying the tab's text and TabListener
-        for (int i = 0; i < 3; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText("Tab " + (i + 1))
-                            .setTabListener(tabListener));
-        }*/
-
-        //Router.showMyLibrary(this);
-
-        /*TranslationProvider tp = new TranslationProvider(this);
-        try {
-            tp.getTranslation("http://www.wordreference.com/es/translation.asp?tranword=hello",null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        spannable.setSpan(boldSpanEPUB, 0, 11, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        spannable.setSpan(colorSpanREADER, 5, 11, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
     }
 
+    public void onResume(){
+        super.onResume();
+        updateLists();
+    }
+
+    public void updateLists(){
+        mCustomPageAdapter.updateFragmentLists();
+    }
 }

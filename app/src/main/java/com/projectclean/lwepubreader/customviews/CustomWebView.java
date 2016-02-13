@@ -1,13 +1,18 @@
 package com.projectclean.lwepubreader.customviews;
 
-import android.content.Context;
+import android.app.Notification;
+import android.content.Intent;
 import android.os.Build;
+import android.support.v4.app.ShareCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.content.Context;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.AttributeSet;
-import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ViewParent;
@@ -20,8 +25,9 @@ import java.lang.reflect.Method;
 /**
  * Created by Carlos Albaladejo Pérez on 18/01/2016.
  */
-public class CustomWebView extends WebView{
+public class CustomWebView extends WebView {
     private Context context;
+    private ShareActionProvider mShareActionProvider;
 
     // override all other constructor to avoid crash
     public CustomWebView(Context context) {
@@ -40,7 +46,7 @@ public class CustomWebView extends WebView{
     private GestureDetector mDetector;
 
     // this will over ride the default action bar on long press
-    @Override
+    /*@Override
     public ActionMode startActionMode(ActionMode.Callback callback) {
         ViewParent parent = getParent();
         if (parent == null) {
@@ -56,15 +62,38 @@ public class CustomWebView extends WebView{
         }
         CustomActionModeCallback mActionModeCallback = new CustomActionModeCallback();
         return parent.startActionModeForChild(this, mActionModeCallback);
-    }
+    }*/
 
     private class CustomActionModeCallback implements ActionMode.Callback {
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mActionMode = mode;
-            MenuInflater inflater = mode.getMenuInflater();
+
+            mode.getMenuInflater().inflate(R.menu.action_menu, menu);
+            //MenuItem shareItem = menu.findItem(R.id.action_share);
+            //MenuItemCompat.setShowAsAction(shareItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
+            android.support.v7.widget.ShareActionProvider actionprov = new android.support.v7.widget.ShareActionProvider((AppCompatActivity)context);
+            //MenuItemCompat.setActionProvider(shareItem, actionprov);
+            //android.support.v7.widget.ShareActionProvider test =  ( android.support.v7.widget.ShareActionProvider)MenuItemCompat.getActionProvider(shareItem);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, "ActionBarCompat is Awesome! Support Lib v7 #Xamarin");
+            //test.setShareIntent (intent);
+
+            /*MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.action_menu, menu);
+
+            MenuItem shareItem = menu.findItem(R.id.action_share);
+
+            mShareActionProvider = new ShareActionProvider(context);
+            MenuItemCompat.setActionProvider(shareItem, mShareActionProvider);
+
+            Intent myShareIntent = new Intent(Intent.ACTION_SEND);
+            myShareIntent.setType("text/html");
+            myShareIntent.putExtra(Intent.EXTRA_STREAM, "prueba de mono pequeño.");
+            mShareActionProvider.setShareIntent(myShareIntent);*/
+
             return true;
         }
 
@@ -82,12 +111,13 @@ public class CustomWebView extends WebView{
                     //selectAndCopyText();
                     mode.finish();
                     return true;
-                case R.id.example_item_2:
+                /*case R.id.action_share:
+                    onShareAction();
                     mode.finish();
-                    return true;
+                    return true;*/
                 default:
                     mode.finish();
-                    return false;
+                    return true;
             }
         }
         @Override
@@ -99,6 +129,16 @@ public class CustomWebView extends WebView{
                     mSelectActionModeCallback.onDestroyActionMode(mode);
                 }
                 mActionMode = null;
+            }
+        }
+
+        private void onShareAction(){
+            // Create the share Intent
+            String yourShareText = "mongol kebab";
+            Intent shareIntent = ShareCompat.IntentBuilder.from((AppCompatActivity)context).setType("text/plain").setText(yourShareText).getIntent();
+            // Set the share Intent
+            if (mShareActionProvider != null) {
+                mShareActionProvider.setShareIntent(shareIntent);
             }
         }
     }

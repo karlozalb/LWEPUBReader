@@ -16,6 +16,7 @@
 
         <meta-data android:name="DATABASE" android:value="lwepub.db" />
         <meta-data android:name="VERSION" android:value="1" />
+        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.projectclean.lwepubreader.model" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -26,7 +27,7 @@
         </activity>
         <activity
             android:name=".activities.EPUBActivity"
-            android:configChanges="keyboardHidden|screenSize"
+            android:configChanges="keyboardHidden|screenSize|orientation"
             android:label="@string/title_activity_epub"
             android:theme="@style/FullscreenTheme"></activity>
 
