@@ -25,6 +25,8 @@ public class CustomFragmentPagerAdapter extends FragmentPagerAdapter {
 
     private Activity mActivity;
 
+    private int mCurrentTab;
+
     public CustomFragmentPagerAdapter(Activity pactivity,FragmentManager fm){
         super(fm);
         mActivity = pactivity;
@@ -72,6 +74,18 @@ public class CustomFragmentPagerAdapter extends FragmentPagerAdapter {
         mTabbedFragments.add(myLibrary);
 
         return myLibrary;
+    }
+
+    public void setActiveTab(int pposition){
+        mCurrentTab = pposition;
+    }
+
+    public MyLibraryFragment getActiveFragment(){
+        return mTabbedFragments.get(mCurrentTab);
+    }
+
+    public MyLibraryFragment getMyLibraryFragment(){
+        return mTabbedFragments.get(1);
     }
 
     public void updateFragmentLists(){

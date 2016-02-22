@@ -15,6 +15,7 @@ import com.projectclean.lwepubreader.io.FileUtils;
  */
 public class MostRecentFragment extends MyLibraryFragment{
 
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setFragmentParams();
 
@@ -32,14 +33,11 @@ public class MostRecentFragment extends MyLibraryFragment{
 
         myLibraryListView.setItemsCanFocus(true);
 
+        registerForContextMenu(myLibraryListView);
+
+        mEmptyViewId = R.id.most_recent_listview_empty_textview;
+
         return v;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        myLibraryListView.setEmptyView(getActivity().findViewById(R.id.most_recent_listview_empty_textview));
     }
 
 }

@@ -8,7 +8,10 @@ import android.util.Log;
 
 import com.pcg.epubloader.EPUBLoaderHelper;
 import com.pcg.exceptions.EPUBException;
+import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.fragments.MyLibraryFragment;
+import com.projectclean.lwepubreader.fragments.ProgressDialogFragment;
+import com.projectclean.lwepubreader.fragments.SpinnerDialogFragment;
 import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
@@ -29,6 +32,7 @@ public class EPUBImporter {
     private IProgressListener mProgressListener;
     private FileUtils mFileUtils;
     private Activity mActivity;
+    private String mCurrentBookName;
 
     public EPUBImporter(Activity pactivity){
         mThumbGenerator = new CoverThumbGenerator(pactivity,this);
@@ -40,7 +44,7 @@ public class EPUBImporter {
         mProgressListener = (IProgressListener)plistener;
     }
 
-    public void importNewBooks(LinkedList<String> pepubpaths){
+    public void getNewBooks(LinkedList<String> pepubpaths,SpinnerDialogFragment pspinner){
         final LinkedList<String> booksToAdd = new LinkedList<String>();
 
         for (int i=0;i<pepubpaths.size();i++){
@@ -49,9 +53,16 @@ public class EPUBImporter {
             }
         }
 
-        if (booksToAdd.size() > 0){
+        pspinner.dismiss();
+        Router.showFileChooserFragmentDialog(mActivity,booksToAdd);
+    }
 
-            mGoalProgress = booksToAdd.size();
+    public void importSelectedBooks(final LinkedList<String> pselectedbooks){
+        if (pselectedbooks.size() > 0){
+
+            mGoalProgress = pselectedbooks.size();
+
+            final ProgressDialogFragment progressDialog = Router.showLoadingDialog(mActivity);
 
             AsyncTask<LinkedList<String>, Integer, LinkedList<EPUBLoaderHelper>> task = new AsyncTask<LinkedList<String>, Integer, LinkedList<EPUBLoaderHelper>>(){
 
@@ -59,18 +70,18 @@ public class EPUBImporter {
 
                     LinkedList<EPUBLoaderHelper> loaderHelpers = new LinkedList<EPUBLoaderHelper>();
 
-                    for (String epubFile : booksToAdd) {
+                    for (String epubFile : pselectedbooks) {
                         loaderHelpers.add(new EPUBLoaderHelper(epubFile));
                     }
 
-                    return loaderHelpers;
-                }
+                    int i=0;
 
-                protected void onProgressUpdate(Integer... progress) {
-                }
+                    if (loaderHelpers.size() > 0){
+                        mCurrentBookName = mFileUtils.getFileName(loaderHelpers.get(0).getPath());
+                        publishProgress(0);
+                    }
 
-                protected void onPostExecute(LinkedList<EPUBLoaderHelper> presult) {
-                    for (EPUBLoaderHelper epubLoader : presult) {
+                    for (EPUBLoaderHelper epubLoader : loaderHelpers) {
                         Book newBook = new Book();
 
                         newBook.setAuthor(processBookAuthor(epubLoader));
@@ -98,13 +109,29 @@ public class EPUBImporter {
                             }
                         }
                         mFileUtils.saveImageToInternalStorageFile(newBook.getBookFileName() + ".jpg", coverStream);
-                        newBook.setBookCover(newBook.getBookFileName()+".jpg");
+                        newBook.setBookCover(newBook.getBookFileName() + ".jpg");
                         newBook.save();
-                        addProgress();
+
+                        i++;
+                        mCurrentBookName = newBook.getBookFileName();
+
+                        publishProgress((int)(((float)i / (float)loaderHelpers.size())*100));
                     }
+
+                    return loaderHelpers;
+                }
+
+                protected void onProgressUpdate(Integer... progress) {
+                    progressDialog.getProgressBar().setProgress(progress[0]);
+                    progressDialog.getCurrentBookTextView().setText(mCurrentBookName);
+                }
+
+                protected void onPostExecute(LinkedList<EPUBLoaderHelper> presult) {
+                    progressDialog.dismiss();
+                    mProgressListener.onProgressFinished();
                 }
             };
-            task.execute(booksToAdd);
+            task.execute(pselectedbooks);
         }
     }
 

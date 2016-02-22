@@ -45,6 +45,8 @@ public class FileUtils {
     }
 
     public LinkedList<String> scanFileSystemForEPUB(){
+
+
         FilenameFilter epubFilter = new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {

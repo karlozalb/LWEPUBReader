@@ -3,7 +3,6 @@ package com.projectclean.lwepubreader.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -15,20 +14,20 @@ import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.Router;
-import com.projectclean.lwepubreader.adapters.BookPageFragmentPagerAdapter;
 import com.projectclean.lwepubreader.adapters.BookPagePagerAdapter;
+import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.translation.ITranslationCallBack;
 import com.projectclean.lwepubreader.translation.TranslationProvider;
@@ -135,6 +134,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
     /* UI components */
     private SeekBar mFontChangeSeekBar,mMarginChangeSeekBar;
+    private SeekBar mPercentageSelectorSlider;
     private TextView mCurrentPageTextView;
     private ViewPager mPager;
     //private BookPageFragmentPagerAdapter mPagerAdapter;
@@ -146,8 +146,13 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
     /* Translation provider */
     private TranslationProvider mTranslationProvider;
 
+    private float mCurrentPagePercentage;
+
     private ActionMode mActionMode;
     private ShareActionProvider mShareActionProvider;
+
+    /* Buttons */
+    private ImageButton mNormalModeButton,mSepiaModeButton,mNightModeButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,7 +172,13 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
         mFontChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_font_change);
         mMarginChangeSeekBar = (SeekBar)findViewById(R.id.seekbar_margin_change);
+        mPercentageSelectorSlider = (SeekBar)findViewById(R.id.percentage_selector_slider);
+
         mCurrentPageTextView = (TextView)findViewById(R.id.page_number_indicator);
+
+        mNormalModeButton = (ImageButton)findViewById(R.id.button_style_normal_mode);
+        mSepiaModeButton = (ImageButton)findViewById(R.id.button_style_sepia_mode);
+        mNightModeButton = (ImageButton)findViewById(R.id.button_style_night_mode);
 
         Bundle params = getIntent().getExtras();
         if (params != null){
@@ -211,6 +222,8 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
         mMarginChangeSeekBar.setMax(mMaxWidthAndHeight - mMinWidthAndHeight);
         mMarginChangeSeekBar.setProgress(mBook.getMarginPercentage() - mMinWidthAndHeight);
+
+        mPercentageSelectorSlider.setMax(100);
 
         initializeGUIComponentListeners();
     }
@@ -262,6 +275,54 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
                 int[] sizes = updateMargins();
 
                 ((WebView) mContentView).loadUrl("javascript: setBookWidth("+sizes[0]+");setBookHeight("+sizes[1]+");");
+            }
+        });
+
+        mPercentageSelectorSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+
+                mCurrentPagePercentage = (float)progress/100f;
+                if (mCurrentPagePercentage <= 0) mCurrentPagePercentage = 0.001f;
+                if (mCurrentPagePercentage >= 100) mCurrentPagePercentage = 1f;
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                ((WebView)mContentView).loadUrl("javascript: gotoPercentage("+mCurrentPagePercentage+");");
+            }
+        });
+
+        mNormalModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((WebView)mContentView).loadUrl("javascript: setNormalMode();");
+                mBook.setColorMode(Book.NORMAL_MODE);
+                mBook.save();
+            }
+        });
+
+        mSepiaModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((WebView)mContentView).loadUrl("javascript: setSepiaMode();");
+                mBook.setColorMode(Book.SEPIA_MODE);
+                mBook.save();
+            }
+        });
+
+        mNightModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((WebView)mContentView).loadUrl("javascript: setNightMode();");
+                mBook.setColorMode(Book.NIGHT_MODE);
+                mBook.save();
             }
         });
     }
@@ -343,6 +404,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setUseWideViewPort(true);
         webView.setHorizontalScrollBarEnabled(false);
         webView.setVerticalScrollBarEnabled(false);
 
@@ -351,9 +413,15 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
                 if (mBook.getWidth() == null || mBook.getHeight() ==  null){
                     int[] virtualSizes = updateMargins();
-                    webView.loadUrl("javascript:loadBook('file:///"+mEPUBPath+"',"+mBook.getFontSize()+",'"+mBook.getBookState()+"',"+virtualSizes[0]+","+virtualSizes[1] + ");");
+                    webView.loadUrl("javascript:loadBook('file:///"+mEPUBPath+"',"+mBook.getFontSize()+",'"+mBook.getBookState()+"',"+virtualSizes[0]+","+virtualSizes[1] + ","+mBook.getColorMode()+");");
                 }else{
-                    webView.loadUrl("javascript:loadBook('file:///"+mEPUBPath+"',"+mBook.getFontSize()+",'"+mBook.getBookState()+"',"+mBook.getWidth()+","+mBook.getHeight()+");");
+                    webView.loadUrl("javascript:setLocations('"+mBook.getLocations()+"');");
+                    try {
+                        webView.loadUrl("javascript:setPagination('"+ IOUtils.toString(FileUtils.getInstance(EPUBActivity.this).getInputStreamFromInternalStorage(mBook.getBookFileName()+".json"))+"');");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    webView.loadUrl("javascript:loadBook('file:///"+mEPUBPath+"',"+mBook.getFontSize()+",'"+mBook.getBookState()+"',"+mBook.getWidth()+","+mBook.getHeight()+","+mBook.getColorMode()+");");
                 }
 
             }}
@@ -455,6 +523,9 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             Toast.makeText(this, ScreenUtils.getScreenWidth(this)+"x"+ScreenUtils.getScreenHeight(this), Toast.LENGTH_SHORT).show();
         }
+
+        int sizes[] = updateMargins();
+        ((WebView) mContentView).loadUrl("javascript: setBookWidth(" + sizes[0] + ");setBookHeight(" + sizes[1] + ");");
     }
 
     public int[] updateMargins(){
@@ -488,7 +559,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         Menu menu = mode.getMenu();
         menu.clear();
 
-        getMenuInflater().inflate(R.menu.action_menu, menu);
+        getMenuInflater().inflate(R.menu.webview_contextual_action_menu, menu);
 
         SupportMenuItem shareItem = (SupportMenuItem)menu.findItem(R.id.action_share);
 
@@ -499,7 +570,19 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         myShareIntent.putExtra(Intent.EXTRA_TEXT, "This is a test!");
 
         mShareActionProvider.setShareIntent(myShareIntent);
+
+        menu.findItem(R.id.translate_action_btn).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                ((WebView) mContentView).loadUrl("javascript: getSelectedText();");
+                return true;
+            }
+        });
     }
 
+    public void setCurrentPageProgressBar(float pcurrentprogress){
+        Log.i("LWEPUB","setCurrentPageProgressBar "+pcurrentprogress);
+        mPercentageSelectorSlider.setProgress((int)pcurrentprogress);
+    }
 
 }

@@ -9,6 +9,13 @@
 
     <string name="translation_dialog_title">Traducción: </string>
 
+    <string name="loading_dialog_title">Importando...</string>
+    <string name="loading_dialog_message">Se están importando los libros que has seleccionado.</string>
+    <string name="infinite_loading_dialog_message">Buscando epubs en tu dispositivo...</string>
+    <string name="loading_dialog_message_book">Libro: </string>
+
+    <string name="file_chooser_dialog_title">Libros para importar</string>
+
     <string name="mylibrary_tab_title">Biblioteca</string>
     <string name="read_tab_title">Leidos</string>
     <string name="most_recent_tab_title">Recientes</string>
@@ -20,5 +27,22 @@
     <string name="mylibrary_empty_text">Pulsa sobre el botón actualizar (abajo a la derecha) para añadir tus libros a la biblioteca.</string>
     <string name="read_empty_text">Cuando acabes de leer un libro, aparecerá en esta lista</string>
     <string name="most_recent_empty_text">Una vez empieces a leer un libro, se mostrará en esta lista :)</string>
+
+    <string name="action_settings">Configuración</string>
+    <string name="action_delete_all">Borrar librería</string>
+
+    <string name="button_add">Añadir</string>
+    <string name="button_select_all">Marcar todos</string>
+    <string name="button_select_none">Desmarcar todos</string>
+
+    <string name="book_title">Título:</string>
+    <string name="book_author">Escrito por:</string>
+    <string name="book_added">Añadido:</string>
+    <string name="book_last_read">Última lectura:</string>
+
+    <string name="delete_all_dialog_title">Borrar todos</string>
+    <string name="delete_all_dialog_message">¿Quiere eliminar toda su librería? Los archivos no se borrarán del dispositivo</string>
+
+    <string name="loading">Cargando...</string>
 
 </resources>

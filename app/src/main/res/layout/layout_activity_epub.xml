@@ -5,26 +5,24 @@
     android:background="#0099cc"
     tools:context="com.projectclean.lwepubreader.activities.EPUBActivity">
 
-    <com.projectclean.lwepubreader.customviews.CustomWebView
+    <WebView
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
+        android:textColor="#33b5e5"/>
 
     <TextView
         android:id="@+id/page_number_indicator"
-        android:text="x/X"
+        android:text="@string/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|bottom"
         android:textAlignment="center"
         android:paddingTop="3dp"
         android:paddingBottom="3dp"
+        android:layout_marginBottom="3dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:background="#828282" />
@@ -39,17 +37,62 @@
         <LinearLayout
             android:id="@+id/fullscreen_content_controls"
             style="?metaButtonBarStyle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
             android:background="@color/black_overlay"
             android:orientation="vertical"
             tools:ignore="UselessParent"
+            android:padding="5dp"
             android:visibility="gone">
+
+            <SeekBar
+                android:id="@+id/percentage_selector_slider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/button_style_normal_mode"
+                    android:src="@drawable/normal_mode"
+                    android:background="@android:color/transparent"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="false"
+                    android:scaleType="centerInside" />
+
+                <ImageButton
+                    android:id="@+id/button_style_sepia_mode"
+                    android:src="@drawable/sepia_mode"
+                    android:background="@android:color/transparent"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerInside" />
+
+                <ImageButton
+                    android:id="@+id/button_style_night_mode"
+                    android:src="@drawable/night_mode"
+                    android:background="@android:color/transparent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerInside" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -68,7 +111,8 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal">
 
                 <ImageView

@@ -1,12 +1,10 @@
 package com.projectclean.lwepubreader.customviews;
 
-import android.app.Notification;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.AttributeSet;
@@ -15,7 +13,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.ViewParent;
 import android.webkit.WebView;
 
 import com.projectclean.lwepubreader.R;
@@ -70,7 +67,7 @@ public class CustomWebView extends WebView {
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             mActionMode = mode;
 
-            mode.getMenuInflater().inflate(R.menu.action_menu, menu);
+            mode.getMenuInflater().inflate(R.menu.webview_contextual_action_menu, menu);
             //MenuItem shareItem = menu.findItem(R.id.action_share);
             //MenuItemCompat.setShowAsAction(shareItem, MenuItemCompat.SHOW_AS_ACTION_IF_ROOM);
             android.support.v7.widget.ShareActionProvider actionprov = new android.support.v7.widget.ShareActionProvider((AppCompatActivity)context);
@@ -82,7 +79,6 @@ public class CustomWebView extends WebView {
             //test.setShareIntent (intent);
 
             /*MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.action_menu, menu);
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
 

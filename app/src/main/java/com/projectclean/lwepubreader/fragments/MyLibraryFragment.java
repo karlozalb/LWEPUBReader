@@ -6,15 +6,12 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.projectclean.lwepubreader.MainActivity;
 import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.R;
@@ -35,7 +32,7 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
 
     MyLibraryAdapter mMyLibraryAdapter;
     FileUtils mFileUtils;
-    ListView myLibraryListView;
+    protected ListView myLibraryListView;
 
     public static final int MOST_RECENT_LIMIT = 3;
     public static final String FRAGMENT_QUERY = "F_QUERY";
@@ -43,15 +40,25 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     String mQuery;
 
     private int mCurrentLongClickSelectedItem;
+    private EPUBImporter mEpubImporter;
+
+    private TextView mEmptyTextView;
+
+    protected int mEmptyViewId;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setFragmentParams();
 
+        mEpubImporter = new EPUBImporter(getActivity());
+
         View v = inflater.inflate(mLayoutID, container, false);
 
         myLibraryListView = (ListView)v.findViewById(R.id.mylibrary_listview);
         mMyLibraryAdapter = new MyLibraryAdapter(getActivity());
+
+        mEmptyTextView = (TextView)getActivity().findViewById(R.id.mylibrary_empty_textview);
 
         myLibraryListView.setAdapter(mMyLibraryAdapter);
 
@@ -65,11 +72,15 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         updateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    updateMyLibrary();
+                    updateMyLibrary(Router.showSpinnerLoadingDialog(getActivity()));
                 }
         });
 
         myLibraryListView.setItemsCanFocus(true);
+
+        registerForContextMenu(myLibraryListView);
+
+        mEmptyViewId = R.id.mylibrary_empty_textview;
 
         return v;
     }
@@ -78,7 +89,7 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        myLibraryListView.setEmptyView(getActivity().findViewById(R.id.mylibrary_empty_textview));
+        myLibraryListView.setEmptyView(getActivity().findViewById(mEmptyViewId));
     }
 
     public void setListeners(){
@@ -97,7 +108,6 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
             }
         });
 
-        registerForContextMenu(myLibraryListView);
     }
 
     public void setFragmentParams(){
@@ -113,6 +123,10 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     public void onResume(){
         super.onResume();
         mMyLibraryAdapter.updateListUI();
+
+        mMyLibraryAdapter.notifyDataSetChanged();
+
+        //if (mEmptyTextView != null && mMyLibraryAdapter.getCount() <= 0) mEmptyTextView.setVisibility(View.GONE);
     }
 
     public void loadCurrentLibrary(){
@@ -131,12 +145,20 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         }
     }
 
-    public void updateMyLibrary(){
-        EPUBImporter epubImporter = new EPUBImporter(getActivity());
-        epubImporter.setProgressListener(this);
-        epubImporter.importNewBooks(mFileUtils.scanFileSystemForEPUB());
+    public void updateMyLibrary(final SpinnerDialogFragment pspinner){
+        mEpubImporter.setProgressListener(this);
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mEpubImporter.getNewBooks(mFileUtils.scanFileSystemForEPUB(),pspinner);
+            }
+        });
+        t.start();
     }
 
+    public void importSelectedBooks(LinkedList<String> pselectedbooks){
+        mEpubImporter.importSelectedBooks(pselectedbooks);
+    }
 
     private LinkedList<MyLibraryBookListNode> createMyLibraryDataNodes(LinkedList<String> pfilepaths){
         LinkedList<MyLibraryBookListNode> dataNodes = new LinkedList<MyLibraryBookListNode>();
@@ -168,30 +190,10 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         inflater.inflate(R.menu.listview_context_menu, menu);
 
         int position = myLibraryListView.getSelectedItemPosition();
-
     }
 
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Book b;
-        switch (item.getItemId()) {
-            case R.id.context_menu_view_details:
-                return true;
-            case R.id.context_menu_mask_as_read:
-                b = (Book)myLibraryListView.getItemAtPosition(mCurrentLongClickSelectedItem);
-                b.setRead(true);
-                b.save();
-                ((MainActivity)getActivity()).updateLists();
-                return true;
-            case R.id.context_menu_delete:
-                b = (Book)myLibraryListView.getItemAtPosition(mCurrentLongClickSelectedItem);
-                b.setDeleted(true);
-                b.save();
-                ((MainActivity)getActivity()).updateLists();
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
+    public Book getSelectedItem(){
+        return (Book)myLibraryListView.getItemAtPosition(mCurrentLongClickSelectedItem);
     }
+
 }

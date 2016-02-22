@@ -27,6 +27,16 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <com.appodeal.ads.BannerView
+        android:id="@+id/appodealBannerView"
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_fragment_container"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/colorPrimary">
+    </com.appodeal.ads.BannerView>
+
     <android.support.design.widget.TabLayout xmlns:android="http://schemas.android.com/apk/res/android"
        android:id="@+id/tab_layout"
        android:background="@color/colorPrimary"

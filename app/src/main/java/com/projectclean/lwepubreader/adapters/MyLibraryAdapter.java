@@ -124,7 +124,7 @@ public class MyLibraryAdapter extends BaseAdapter {
         holder.AUTHOR.setText(currentBook.getAuthor());
         holder.TITLE.setText(currentBook.getTitle());
         Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).into(holder.COVER);
-        holder.PROGRESS_BAR.setProgress((int)(currentBook.getBookCompletion() * 100));
+        holder.PROGRESS_BAR.setProgress((int)(currentBook.getBookCompletion()));
         holder.BOOK = currentBook;
 
         return convertView;

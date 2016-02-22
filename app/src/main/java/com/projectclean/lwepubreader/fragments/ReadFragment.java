@@ -33,14 +33,11 @@ public class ReadFragment extends MyLibraryFragment{
 
         myLibraryListView.setItemsCanFocus(true);
 
+        registerForContextMenu(myLibraryListView);
+
+        mEmptyViewId = R.id.read_empty_textview;
+
         return v;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        myLibraryListView.setEmptyView(getActivity().findViewById(R.id.read_empty_textview));
     }
 
 }

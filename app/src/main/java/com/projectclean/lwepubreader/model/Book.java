@@ -9,6 +9,8 @@ import java.util.Date;
  */
 public class Book extends SugarRecord {
 
+    public static final int NORMAL_MODE = 0,SEPIA_MODE = 1,NIGHT_MODE = 2;
+
     //Data about the book, not changeable.
     String author, title;
     String bookState, bookPath, bookCover;
@@ -32,6 +34,9 @@ public class Book extends SugarRecord {
     boolean deleted;
     int mostRecentOrder;
     int marginPercentage;
+
+    //Color mode
+    int colorMode;
 
     public Book(){
 
@@ -174,6 +179,14 @@ public class Book extends SugarRecord {
 
     public int getMarginPercentage(){
         return marginPercentage;
+    }
+
+    public int getColorMode() {
+        return colorMode;
+    }
+
+    public void setColorMode(int colorMode) {
+        this.colorMode = colorMode;
     }
 
 }

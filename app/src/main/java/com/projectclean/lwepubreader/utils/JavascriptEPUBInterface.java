@@ -63,6 +63,7 @@ public class JavascriptEPUBInterface {
     @JavascriptInterface
     public void setBookCompletion(String pbookcompletion){
         mBook.setBookCompletion(Float.parseFloat(pbookcompletion));
+        ((EPUBActivity)mContext).setCurrentPageProgressBar(Float.parseFloat(pbookcompletion));
     }
 
 }
