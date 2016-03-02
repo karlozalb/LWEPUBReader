@@ -38,6 +38,9 @@ public class Book extends SugarRecord {
     //Color mode
     int colorMode;
 
+    //Translation language
+    int language;
+
     public Book(){
 
     }
@@ -187,6 +190,14 @@ public class Book extends SugarRecord {
 
     public void setColorMode(int colorMode) {
         this.colorMode = colorMode;
+    }
+
+    public void setTranslationConfiguration(int planguage){
+        language = planguage;
+    }
+
+    public int getTranslationConfiguration(){
+        return language;
     }
 
 }

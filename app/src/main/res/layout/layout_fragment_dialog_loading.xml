@@ -25,6 +25,7 @@
         android:layout_marginTop="10dp"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:progressDrawable="@drawable/custom_progress_bar"/>
 
 </LinearLayout>

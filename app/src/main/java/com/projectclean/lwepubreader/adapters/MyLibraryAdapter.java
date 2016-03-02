@@ -1,6 +1,7 @@
 package com.projectclean.lwepubreader.adapters;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -14,7 +15,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,9 +26,11 @@ import com.pcg.epubloader.EPUBLoaderHelper;
 import com.pcg.epubspec.Manifest;
 import com.pcg.epubspec.Spine;
 import com.pcg.exceptions.EPUBException;
+import com.projectclean.lwepubreader.MainActivity;
 import com.projectclean.lwepubreader.listnodes.MyLibraryBookListNode;
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.model.Book;
+import com.projectclean.lwepubreader.picassoext.CircleTransform;
 import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.squareup.picasso.Picasso;
@@ -113,6 +118,11 @@ public class MyLibraryAdapter extends BaseAdapter {
             holder.TITLE = (TextView)convertView.findViewById(R.id.mylibrary_item_title);
             holder.COVER = (ImageView)convertView.findViewById(R.id.mylibrary_item_cover);
             holder.PROGRESS_BAR = (ProgressBar) convertView.findViewById(R.id.book_completion_progress_bar);
+            holder.MORE_BUTTON = (ImageButton) convertView.findViewById(R.id.more_button);
+
+            holder.LISTENER = new CustomImageButtonClickListener();
+
+            holder.MORE_BUTTON.setOnClickListener(holder.LISTENER);
 
             mHolders.add(holder);
 
@@ -123,12 +133,16 @@ public class MyLibraryAdapter extends BaseAdapter {
 
         holder.AUTHOR.setText(currentBook.getAuthor());
         holder.TITLE.setText(currentBook.getTitle());
-        Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).into(holder.COVER);
-        holder.PROGRESS_BAR.setProgress((int)(currentBook.getBookCompletion()));
+        Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).transform(new CircleTransform(8)).into(holder.COVER);
+        Log.i("LWEPUB","currentBook.getBookCompletion(): "+currentBook.getBookCompletion()+" - progress: "+(int) (currentBook.getBookCompletion() * 100));
+        holder.PROGRESS_BAR.setProgress((int) (currentBook.getBookCompletion() * 100));
         holder.BOOK = currentBook;
+        holder.LISTENER.setItemIndex(position);
 
         return convertView;
     }
+
+
 
     /**
      * Updates the book completion progress bar.
@@ -144,6 +158,9 @@ public class MyLibraryAdapter extends BaseAdapter {
         public TextView TITLE,AUTHOR;
         public ImageView COVER;
         public ProgressBar PROGRESS_BAR;
+        public ImageButton MORE_BUTTON;
+
+        public CustomImageButtonClickListener LISTENER;
 
         public Book BOOK;
 
@@ -154,5 +171,19 @@ public class MyLibraryAdapter extends BaseAdapter {
         public AsyncTask<String, Integer, String[]> TASK;
         public EPUBLoaderHelper LOADER_HELPER;
         public CoverThumbGenerator THUMB_GENERATOR;
+    }
+
+    public class CustomImageButtonClickListener implements View.OnClickListener{
+
+        private int mIndex;
+
+        public void setItemIndex(int pindex){
+            mIndex = pindex;
+        }
+
+        @Override
+        public void onClick(View v) {
+            ((MainActivity)mActivity).showPopupMenu(mIndex,mBooks.get(mIndex),v);
+        }
     }
 }

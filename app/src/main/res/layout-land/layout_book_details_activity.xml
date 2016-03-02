@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:padding="15dp"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <ImageView
+        android:id="@+id/book_details_book_cover"
+        android:padding="10dp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
+    <LinearLayout
+        android:layout_weight="2"
+        android:layout_width="0dp"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"
+        android:padding="8dp">
+
+        <TextView
+            android:text="@string/book_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pcg_orange"
+            android:textSize="16dp"
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/book_details_book_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:text="@string/book_author"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pcg_orange"
+            android:textSize="16dp"
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/book_details_authors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:text="@string/book_added"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pcg_orange"
+            android:textSize="16dp"
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/book_details_date_added"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:text="@string/book_last_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pcg_orange"
+            android:textSize="16dp"
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/book_details_last_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:text="@string/book_translation_config"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pcg_orange"
+            android:textSize="16dp"
+            android:layout_gravity="center_horizontal" />
+        <Spinner
+            android:id="@+id/languages_list"
+            android:spinnerMode="dropdown"
+            android:layout_width="220dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:textAlignment="center"
+            android:background="@color/colorPrimary" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/configuration_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/ToolbarStyle"
+        android:title="@string/action_settings">
+    </android.support.v7.widget.Toolbar>
+
+    <TextView
+        android:text="Opciones de lectura"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <CheckedTextView
+        android:text="Mostrar reloj"
+        android:id="@+id/configuration_show_clock"
+        android:layout_width="match_parent"
+        android:textColor="@android:color/darker_gray"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:textSize="16dp"
+        android:layout_height="60dp"
+        android:textAlignment="gravity"
+        android:gravity="center_vertical"
+        android:padding="15dp" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:padding="15dp">
+
+        <TextView
+            android:text="Color por defecto"
+            android:textSize="16dp"
+            android:textColor="@android:color/darker_gray"
+            android:textAlignment="gravity"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <Spinner
+            android:id="@+id/default_color_list"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:background="@color/colorPrimary"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"></Spinner>
+
+    </FrameLayout>
+
+    <TextView
+        android:text="Opciones de traducción"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:text="Esta es la opción por defecto, puedes seleccionar opciones de traducción específica para cada libro dentro del menú \'Ver detalles\' de cada libro."
+        android:padding="10dp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:padding="15dp">
+
+        <TextView
+            android:text="Traducción"
+            android:textSize="16dp"
+            android:textColor="@android:color/darker_gray"
+            android:textAlignment="gravity"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+
+        <Spinner
+            android:id="@+id/main_configuration_languages_list"
+            android:spinnerMode="dropdown"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:background="@color/colorPrimary"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:gravity="right"
+            android:layout_gravity="right" />
+
+    </FrameLayout>
+
+</LinearLayout>

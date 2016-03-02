@@ -6,9 +6,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckedTextView;
 
+import com.dropbox.core.v2.files.FileMetadata;
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.io.FileUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class FileChooserListAdapter  extends BaseAdapter {
     private LinkedList<EPUBNode> mFiles;
     private Activity mActivity;
     private FileUtils mFileUtils;
-
+    private List<FileMetadata> mFilesMetadata;
 
     public FileChooserListAdapter(Activity pactivity){
         mFiles = new LinkedList<EPUBNode>();
@@ -42,6 +44,15 @@ public class FileChooserListAdapter  extends BaseAdapter {
         for (String filename : pitems) {
             EPUBNode node = new EPUBNode();
             node.FILENAME = filename;
+            mFiles.add(node);
+        }
+    }
+
+    public void addFileMetadataItems(List<FileMetadata> pitems){
+        mFilesMetadata = pitems;
+        for (FileMetadata metadata : pitems) {
+            EPUBNode node = new EPUBNode();
+            node.FILENAME = metadata.getPathLower();
             mFiles.add(node);
         }
     }
@@ -96,11 +107,21 @@ public class FileChooserListAdapter  extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public LinkedList<String> getSelectedItems(){
-        LinkedList<String> epubs = new LinkedList<String>();
+    public ArrayList<String> getSelectedItems(){
+        ArrayList<String> epubs = new ArrayList<String>();
 
         for (EPUBNode node : mFiles){
             if (node.CHECKED) epubs.add(node.FILENAME);
+        }
+
+        return epubs;
+    }
+
+    public LinkedList<FileMetadata> getSelectedItemsFileMetadata(){
+        LinkedList<FileMetadata> epubs = new LinkedList<FileMetadata>();
+
+        for (int i=0;i<mFilesMetadata.size();i++){
+            if (mFiles.get(i).CHECKED) epubs.add(mFilesMetadata.get(i));
         }
 
         return epubs;

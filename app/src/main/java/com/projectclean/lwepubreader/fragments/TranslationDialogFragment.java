@@ -37,6 +37,13 @@ public class TranslationDialogFragment extends DialogFragment {
                 .create();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getActivity().getResources().getColor(R.color.pcg_orange));
+        ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getActivity().getResources().getColor(R.color.pcg_orange));
+    }
+
     public void initializeWebView(WebView pwebview,String pcontent){
         String htmlWebSitePart1 = "",htmlWebSitePart2 = "";
         try {

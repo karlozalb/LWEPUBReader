@@ -63,6 +63,8 @@
             var locations;
             var pagination;
             var fontSize,width,height;
+            var previousExtentOffset,previousBaseOffset;
+            var metadata;
 
             function setNightMode(){
                 $("body").css("background-color","black");
@@ -122,9 +124,19 @@
                 Android.setSelectedText(""+txt);
             }
 
+            function getSelectedTextAuthorAndBookName(){
+                var txt = book.renderer.render.window.getSelection();
+                var metadata = book.getMetadata();
+                Android.setSelectedTextBookAndAuthor(""+txt,""+metadata._result.bookTitle,""+metadata._result.creator);
+            }
+
             function gotoPercentage(ppercentage){
                 var cfi = book.locations.cfiFromPercentage(ppercentage);
                 book.gotoCfi(cfi);
+            }
+
+            function gotoHref(phref){
+                book.gotoHref(phref);
             }
         </script>
 </head>
@@ -166,6 +178,10 @@
                 }
 
                 book.ready.all.then(function(){
+
+                  Android.setBookToc(JSON.stringify(book.getToc()));
+                  metadata = book.getMetadata();
+
                   // Load in stored locations from json or local storage
                   if (pagination == undefined || pagination == "undefined"){
                     console.log("Generating page list.");
@@ -176,9 +192,6 @@
                     console.log('javascript: Locations provided and loaded -> '+locations);
                     return book.locations.load(locations);
                   } else {
-                    // Or generate the locations on the fly
-                    // Can pass an option number of chars to break sections by
-                    // default is 150 chars
                     console.log('javascript: Locations NOT provided. They will be generated.');
 
                     return book.locations.generate(1600);
@@ -198,17 +211,28 @@
                         console.log('javascript: Location changed.');
                         console.log('javascript: New location: '+location);
                         var percent = book.locations.percentageFromCfi(location);
-                        var percentage = Math.floor(percent * 100);
+                        var percentage = percent;
                         console.log('javascript: book state: location: '+location+' - fontSize: '+fontSize+' - width: '+width+' - height: '+height);
                         Android.saveBookState(location,fontSize,width,height);
                         console.log('javascript: Percentage: '+percentage);
 
                         Android.setUIPageData(book.pagination.pageFromCfi(location),book.pagination.lastPage);
 
-                        Android.setBookCompletion(percentage);
+                        Android.setBookCompletion(percentage * 100);
                     });
                 });
             }
+
+            window.setInterval(function() {
+                if (book != undefined){
+                    var selection = book.renderer.render.window.getSelection();
+                    if (selection.extentOffset != previousExtentOffset || selection.baseOffset != previousBaseOffset){
+                        Android.setSelectedTextBookAndAuthor(""+selection,""+metadata._result.bookTitle,""+metadata._result.creator);
+                        previousExtentOffset = selection.extentOffset;
+                        previousBaseOffset = selection.baseOffset;
+                    }
+                }
+            }, 100);
         </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 package com.projectclean.lwepubreader.fragments;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -18,10 +19,12 @@ public class SpinnerDialogFragment extends DialogFragment{
 
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.layout_fragment_dialog_spinner, null);
 
+        String title = getArguments().getString(Intent.EXTRA_TEXT);
+
         return new AlertDialog.Builder(getActivity())
                 .setCancelable(false)
                 .setView(v)
-                .setTitle(R.string.loading_dialog_title)
+                .setTitle(title)
                 .create();
     }
 

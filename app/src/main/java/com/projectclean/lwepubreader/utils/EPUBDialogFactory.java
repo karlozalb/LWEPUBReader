@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
+import com.projectclean.lwepubreader.R;
+
 /**
  * Created by Carlos Albaladejo Pérez on 17/02/2016.
  */
@@ -27,6 +29,9 @@ public class EPUBDialogFactory {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(pactivity.getResources().getColor(R.color.pcg_orange));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(pactivity.getResources().getColor(R.color.pcg_orange));
     }
 
 }

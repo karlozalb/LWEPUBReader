@@ -12,7 +12,18 @@
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionModeStyle">@style/ActionMode</item>
-        <!--<item name="actionMenuTextColor">@color/pcg_orange</item>-->
+        <item name="popupMenuStyle">@style/PopupStyle</item>
+        <item name="android:popupMenuStyle">@style/PopupStyle</item>
+        <item name="android:alertDialogStyle">@style/AlertDialogCustom</item>
+    </style>
+
+    <style name="PopupStyle" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:popupBackground">@color/colorPrimary</item>
+    </style>
+
+    <style name="ToolbarStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:colorBackground">@color/colorPrimary</item>
+        <item name="android:textColor">@color/skull_white</item>
     </style>
 
     <style name="ActionMode" parent="@style/Widget.AppCompat.Light.ActionMode.Inverse">
@@ -30,6 +41,14 @@
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
         <item name="android:background">@color/black_overlay</item>
+    </style>
+
+    <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="colorAccent">@color/pcg_orange</item>
+        <item name="android:textColorPrimary">@color/pcg_orange</item>
+        <item name="colorPrimary">@color/pcg_orange</item>
+        <item name="android:borderlessButtonStyle">@color/pcg_orange</item>
     </style>
 
 </resources>

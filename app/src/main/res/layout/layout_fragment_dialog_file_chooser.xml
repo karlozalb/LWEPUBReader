@@ -11,18 +11,21 @@
         <Button
             android:id="@+id/file_chooser_select_all_button"
             android:text="@string/button_select_all"
-            android:padding="10dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:layout_marginRight="2dp" />
 
         <Button
             android:id="@+id/file_chooser_select_none_button"
             android:text="@string/button_select_none"
-            android:padding="10dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:background="@color/colorPrimary"
+            android:layout_marginLeft="2dp" />
     </LinearLayout>
 
     <ListView

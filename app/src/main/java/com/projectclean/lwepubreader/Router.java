@@ -1,15 +1,17 @@
 package com.projectclean.lwepubreader;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 
+import com.dropbox.core.v2.files.FileMetadata;
 import com.projectclean.lwepubreader.activities.BookDetailsActivity;
+import com.projectclean.lwepubreader.activities.ConfigurationActivity;
 import com.projectclean.lwepubreader.activities.EPUBActivity;
 import com.projectclean.lwepubreader.fragments.FileChooserDialogFragment;
 import com.projectclean.lwepubreader.fragments.GenericFragment;
@@ -19,6 +21,7 @@ import com.projectclean.lwepubreader.fragments.SpinnerDialogFragment;
 import com.projectclean.lwepubreader.fragments.TranslationDialogFragment;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -50,7 +53,12 @@ public class Router {
 
     public static void showBookDetails(Activity pcontext,long pbookid){
         Intent intent = new Intent(pcontext, BookDetailsActivity.class);
-        intent.putExtra(BookDetailsActivity.EXTRA_ID,pbookid);
+        intent.putExtra(BookDetailsActivity.EXTRA_ID, pbookid);
+        pcontext.startActivity(intent);
+    }
+
+    public static void showConfiguration(Activity pcontext){
+        Intent intent = new Intent(pcontext, ConfigurationActivity.class);
         pcontext.startActivity(intent);
     }
 
@@ -67,7 +75,7 @@ public class Router {
 
         myLibrary.setArguments(arguments);
 
-        setFragment(pcontext,myLibrary,R.id.main_fragment_container,MY_LIBRARY_TAG);
+        setFragment(pcontext, myLibrary, R.id.main_fragment_container, MY_LIBRARY_TAG);
     }
 
     public static void showTranslationFragmentDialog(Activity pcontext,String pfragmentcontent){
@@ -81,7 +89,7 @@ public class Router {
         tDialogFragment.show(((AppCompatActivity) pcontext).getSupportFragmentManager(), TRANSLATION_DIALOG_TAG);
     }
 
-    public static void showFileChooserFragmentDialog(Activity pcontext,List<String> pepublist){
+    public static void showFileChooserFragmentDialog(Activity pcontext,LinkedList<String> pepublist){
         FileChooserDialogFragment tDialogFragment = new FileChooserDialogFragment();
 
         Bundle arguments = new Bundle();
@@ -89,6 +97,23 @@ public class Router {
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.addAll(pepublist);
         arguments.putStringArrayList(FileChooserDialogFragment.EPUB_LIST, arrayList);
+        arguments.putBoolean(FileChooserDialogFragment.IS_DROPBOX, false);
+        tDialogFragment.setArguments(arguments);
+
+        tDialogFragment.show(((AppCompatActivity) pcontext).getSupportFragmentManager(), FILE_CHOOSER_DIALOG_TAG);
+    }
+
+    public static void showDropboxFileChooserFragmentDialog(Activity pcontext,List<FileMetadata> pepublist){
+        FileChooserDialogFragment tDialogFragment = new FileChooserDialogFragment();
+
+        Bundle arguments = new Bundle();
+
+        ArrayList<String> arrayList = new ArrayList<>();
+        for (FileMetadata fm : pepublist){
+            arrayList.add(fm.toJson(false));
+        }
+        arguments.putStringArrayList(FileChooserDialogFragment.EPUB_LIST, arrayList);
+        arguments.putBoolean(FileChooserDialogFragment.IS_DROPBOX, true);
         tDialogFragment.setArguments(arguments);
 
         tDialogFragment.show(((AppCompatActivity)pcontext).getSupportFragmentManager(),FILE_CHOOSER_DIALOG_TAG);
@@ -102,8 +127,13 @@ public class Router {
         return tDialogFragment;
     }
 
-    public static SpinnerDialogFragment showSpinnerLoadingDialog(Activity pcontext){
+    public static SpinnerDialogFragment showSpinnerLoadingDialog(Activity pcontext,String pmessage){
         SpinnerDialogFragment tDialogFragment = new SpinnerDialogFragment();
+
+        Bundle b = new Bundle();
+        b.putString(Intent.EXTRA_TEXT,pmessage);
+
+        tDialogFragment.setArguments(b);
 
         tDialogFragment.show(((AppCompatActivity)pcontext).getSupportFragmentManager(),PROGRESS_DIALOG_TAG);
 

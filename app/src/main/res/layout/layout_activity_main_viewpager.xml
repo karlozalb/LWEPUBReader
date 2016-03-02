@@ -14,6 +14,7 @@
         android:background="?attr/colorPrimary"
         android:gravity="center"
         android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/ToolbarStyle"
         android:title="@string/app_name">
 
         <TextView
@@ -40,8 +41,8 @@
     <android.support.design.widget.TabLayout xmlns:android="http://schemas.android.com/apk/res/android"
        android:id="@+id/tab_layout"
        android:background="@color/colorPrimary"
-        app:tabTextColor="#b2ffffff"
-        app:tabSelectedTextColor="@android:color/white"
+       app:tabTextColor="#b2ffffff"
+       app:tabSelectedTextColor="@android:color/white"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        app:layout_scrollFlags="scroll|enterAlways"/>

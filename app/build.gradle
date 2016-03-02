@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.projectclean.lwepubreader"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
@@ -28,19 +28,22 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.satyan:sugar:1.4'
     compile 'com.android.support:design:22.2.0'
-    compile 'com.squareup.okhttp3:okhttp:3.0.0'
-    compile 'com.google.android.gms:play-services-ads:7.5.0'
-    compile files('libs/appodeal-1.14.6.jar')
+    //compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    compile 'com.squareup.okhttp:okhttp:2.7.4'
+    compile 'com.squareup:otto:1.3.8'
+    //compile 'com.google.android.gms:play-services-ads:7.5.0'
     compile files('libs/jsoup-1.8.3.jar')
-    compile files('libs/applovin-6.1.5.jar')
-    compile files('libs/chartboost-6.2.0.jar')
-    compile files('libs/commons-io-2.4.jar')
-    compile files('libs/flurry-analytics-6.2.0.jar')
-    compile files('libs/inmobi-5.2.0.jar')
-    compile files('libs/pwepubparselib.jar')
-    compile files('libs/my-targe-4.2.0.jar')
-    compile files('libs/pwepubparselib.jar')
-    compile files('libs/yandex-metrica-2.30.jar')
-    compile files('libs/unity-ads-1.4.7.jar')
-
+    /*compile files('libs/appodeal-1.14.6.jar')
+            compile files('libs/applovin-6.1.5.jar')
+            compile files('libs/chartboost-6.2.0.jar')
+            compile files('libs/commons-io-2.4.jar')
+            compile files('libs/flurry-analytics-6.2.0.jar')
+            compile files('libs/inmobi-5.2.0.jar')
+            compile files('libs/pwepubparselib.jar')
+            compile files('libs/my-targe-4.2.0.jar')
+            compile files('libs/pwepubparselib.jar')
+            compile files('libs/yandex-metrica-2.30.jar')
+            compile files('libs/unity-ads-1.4.7.jar')*/
+    compile files('libs/dropbox-core-nodep.jar')
+    //compile files('libs/jackson-core-2.6.1.jar')
 }

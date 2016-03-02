@@ -1,26 +1,43 @@
 package com.projectclean.lwepubreader.fragments;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.dropbox.core.v2.files.FileMetadata;
+import com.projectclean.lwepubreader.MainActivity;
 import com.projectclean.lwepubreader.Router;
+import com.projectclean.lwepubreader.activities.EPUBActivity;
 import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.R;
+import com.projectclean.lwepubreader.dropbox.DownloadFileTask;
+import com.projectclean.lwepubreader.dropbox.DropboxHelper;
 import com.projectclean.lwepubreader.epub.EPUBImporter;
 import com.projectclean.lwepubreader.epub.IProgressListener;
 import com.projectclean.lwepubreader.io.FileUtils;
 import com.projectclean.lwepubreader.listnodes.MyLibraryBookListNode;
 import com.projectclean.lwepubreader.model.Book;
+import com.projectclean.lwepubreader.services.DropboxDownloadService;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,10 +63,19 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
 
     protected int mEmptyViewId;
 
+    private Activity mActivity;
+    private ProgressDialogBroadcastReceiver mProgressBroadcastReceiver;
+    private DownloadTaskServiceResponseReceiver mResponseBroadcastReceiver;
+
+    private boolean mReceiversRegistered,mPaused;
+
+    private View mCurrentView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setFragmentParams();
+
+        mActivity = getActivity();
 
         mEpubImporter = new EPUBImporter(getActivity());
 
@@ -72,7 +98,7 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         updateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    updateMyLibrary(Router.showSpinnerLoadingDialog(getActivity()));
+                    updateMyLibrary(Router.showSpinnerLoadingDialog(mActivity,"Escaneando epubs en su dispositivo..."));
                 }
         });
 
@@ -81,6 +107,8 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         registerForContextMenu(myLibraryListView);
 
         mEmptyViewId = R.id.mylibrary_empty_textview;
+
+        mCurrentView = v;
 
         return v;
     }
@@ -122,11 +150,30 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
 
     public void onResume(){
         super.onResume();
+        mPaused = false;
+
+        if (mResponseBroadcastReceiver != null) {
+            mResponseBroadcastReceiver.importIfNeeded();
+        }
+
         mMyLibraryAdapter.updateListUI();
 
         mMyLibraryAdapter.notifyDataSetChanged();
+    }
 
-        //if (mEmptyTextView != null && mMyLibraryAdapter.getCount() <= 0) mEmptyTextView.setVisibility(View.GONE);
+    public void onPause(){
+        super.onPause();
+        mPaused = true;
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+
+        //un-register BroadcastReceiver
+        if (mResponseBroadcastReceiver != null && mProgressBroadcastReceiver != null) {
+            getActivity().unregisterReceiver(mResponseBroadcastReceiver);
+            getActivity().unregisterReceiver(mProgressBroadcastReceiver);
+        }
     }
 
     public void loadCurrentLibrary(){
@@ -156,8 +203,59 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         t.start();
     }
 
-    public void importSelectedBooks(LinkedList<String> pselectedbooks){
+    public void importSelectedBooks(ArrayList<String> pselectedbooks){
         mEpubImporter.importSelectedBooks(pselectedbooks);
+    }
+
+    public void importSelectedBooksFromDropbox(LinkedList<FileMetadata> pselectedbooks,DropboxHelper pdropboxhelper){
+
+        if (mProgressBroadcastReceiver == null && mResponseBroadcastReceiver == null) {
+            ProgressDialogFragment progressDialog = Router.showLoadingDialog(getActivity());
+
+            mProgressBroadcastReceiver = new ProgressDialogBroadcastReceiver(progressDialog);
+            mResponseBroadcastReceiver = new DownloadTaskServiceResponseReceiver(progressDialog);
+
+            IntentFilter intentFilter = new IntentFilter(DropboxDownloadService.ACTION_DropboxDownloadService_UPDATE);
+            intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+            getActivity().registerReceiver(mProgressBroadcastReceiver, intentFilter);
+
+            IntentFilter intentFilterResponse = new IntentFilter(DropboxDownloadService.ACTION_DropboxDownloadService_RESPONSE);
+            intentFilterResponse.addCategory(Intent.CATEGORY_DEFAULT);
+            getActivity().registerReceiver(mResponseBroadcastReceiver, intentFilterResponse);
+        }else{
+            ProgressDialogFragment progressDialog = Router.showLoadingDialog(getActivity());
+
+            mProgressBroadcastReceiver.setDialog(progressDialog);
+            mResponseBroadcastReceiver.setDialog(progressDialog);
+        }
+
+        Intent intent = new Intent(getActivity(), DropboxDownloadService.class);
+
+        ArrayList<String> filesJSON = new ArrayList<String>();
+        for (FileMetadata fm : pselectedbooks){
+            filesJSON.add(fm.toJson(true));
+        }
+        intent.putStringArrayListExtra(Intent.EXTRA_TEXT, filesJSON);
+
+        getActivity().startService(intent);
+
+        /*DownloadFileTask downloadTask = new DownloadFileTask(getActivity(),pdropboxhelper.getClient(),Router.showLoadingDialog(getActivity()),new DownloadFileTask.DropboxDownloadCallback(){
+            @Override
+            public void onDownloadComplete(List<File> result) {
+                LinkedList<String> dropboxBooksPaths = new LinkedList<String>();
+                for (File f : result) {
+                    dropboxBooksPaths.add(f.getAbsolutePath());
+                }
+                mEpubImporter.importSelectedBooks(dropboxBooksPaths);
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+        downloadTask.execute(pselectedbooks);*/
     }
 
     private LinkedList<MyLibraryBookListNode> createMyLibraryDataNodes(LinkedList<String> pfilepaths){
@@ -176,6 +274,7 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
     public void onProgressFinished() {
         Log.i("LWEPUB", "Proceso de importación de ebooks finalizado, cargando librería.");
         loadCurrentLibrary();
+        ((MainActivity)getActivity()).showSnackBarMessage(getActivity().getString(R.string.books_already_imported),Snackbar.LENGTH_SHORT);
     }
 
     @Override
@@ -196,4 +295,65 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         return (Book)myLibraryListView.getItemAtPosition(mCurrentLongClickSelectedItem);
     }
 
+    public class ProgressDialogBroadcastReceiver extends BroadcastReceiver {
+
+        private ProgressDialogFragment mDialog;
+
+        public ProgressDialogBroadcastReceiver(ProgressDialogFragment pdialog){
+            mDialog = pdialog;
+        }
+
+        public void setDialog(ProgressDialogFragment pdialog){
+            mDialog = pdialog;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int progress = intent.getIntExtra(DropboxDownloadService.PROGRESS,0);
+            System.out.println("Progreso recibido: "+progress);
+            mDialog.getProgressBar().setProgress(progress);
+        }
+    }
+
+    public class DownloadTaskServiceResponseReceiver extends BroadcastReceiver {
+
+        private ProgressDialogFragment mDialog;
+
+        private ArrayList<String> storedFiles;
+        private boolean delayedLibraryImport;
+
+        public DownloadTaskServiceResponseReceiver(ProgressDialogFragment pdialog){
+            mDialog = pdialog;
+        }
+
+        public void setDialog(ProgressDialogFragment pdialog){
+            mDialog = pdialog;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> files = intent.getStringArrayListExtra(DropboxDownloadService.RESPONSE);
+            if (mPaused){
+                storedFiles = files;
+                delayedLibraryImport = true;
+            }else {
+                mDialog.dismiss();
+                if (files != null && files.size() > 0) {
+                    mEpubImporter.setProgressListener(MyLibraryFragment.this);
+                    mEpubImporter.importSelectedBooks(files);
+                }
+            }
+        }
+
+        public void importIfNeeded(){
+            if (delayedLibraryImport){
+                delayedLibraryImport = false;
+                mDialog.dismiss();
+                if (storedFiles != null && storedFiles.size() > 0) {
+                    mEpubImporter.setProgressListener(MyLibraryFragment.this);
+                    mEpubImporter.importSelectedBooks(storedFiles);
+                }
+            }
+        }
+    }
 }

@@ -61,9 +61,20 @@ public class JavascriptEPUBInterface {
     }
 
     @JavascriptInterface
+    public void setSelectedTextBookAndAuthor(String pselectedtext,String pauthor,String ptitle){
+        Log.i("LWEPUB","pselectedtext:"+pselectedtext);
+        ((EPUBActivity)mContext).setSelectedTextForSharing(pselectedtext,pauthor,ptitle);
+    }
+
+    @JavascriptInterface
     public void setBookCompletion(String pbookcompletion){
-        mBook.setBookCompletion(Float.parseFloat(pbookcompletion));
-        ((EPUBActivity)mContext).setCurrentPageProgressBar(Float.parseFloat(pbookcompletion));
+        mBook.setBookCompletion(Float.parseFloat(pbookcompletion)/ 100f);
+        ((EPUBActivity)mContext).setCurrentPageProgressBar((int)(Float.parseFloat(pbookcompletion)));
+    }
+
+    @JavascriptInterface
+    public void setBookToc(String ptoc){
+        ((EPUBActivity)mContext).setToc(ptoc);
     }
 
 }

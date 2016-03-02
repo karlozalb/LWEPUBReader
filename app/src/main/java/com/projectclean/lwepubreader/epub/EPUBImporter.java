@@ -1,6 +1,7 @@
 package com.projectclean.lwepubreader.epub;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
@@ -9,6 +10,7 @@ import android.util.Log;
 import com.pcg.epubloader.EPUBLoaderHelper;
 import com.pcg.exceptions.EPUBException;
 import com.projectclean.lwepubreader.Router;
+import com.projectclean.lwepubreader.activities.ConfigurationActivity;
 import com.projectclean.lwepubreader.fragments.MyLibraryFragment;
 import com.projectclean.lwepubreader.fragments.ProgressDialogFragment;
 import com.projectclean.lwepubreader.fragments.SpinnerDialogFragment;
@@ -19,6 +21,7 @@ import com.projectclean.lwepubreader.utils.DateTimeUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,11 +36,13 @@ public class EPUBImporter {
     private FileUtils mFileUtils;
     private Activity mActivity;
     private String mCurrentBookName;
+    private SharedPreferences mPrefs;
 
     public EPUBImporter(Activity pactivity){
         mThumbGenerator = new CoverThumbGenerator(pactivity,this);
         mFileUtils = FileUtils.getInstance(pactivity);
         mActivity = pactivity;
+        mPrefs = pactivity.getSharedPreferences("dropbox-swiftreader", pactivity.MODE_PRIVATE);
     }
 
     public void setProgressListener(Object plistener){
@@ -57,21 +62,25 @@ public class EPUBImporter {
         Router.showFileChooserFragmentDialog(mActivity,booksToAdd);
     }
 
-    public void importSelectedBooks(final LinkedList<String> pselectedbooks){
+    public void importSelectedBooks(final ArrayList<String> pselectedbooks){
         if (pselectedbooks.size() > 0){
 
             mGoalProgress = pselectedbooks.size();
 
             final ProgressDialogFragment progressDialog = Router.showLoadingDialog(mActivity);
 
-            AsyncTask<LinkedList<String>, Integer, LinkedList<EPUBLoaderHelper>> task = new AsyncTask<LinkedList<String>, Integer, LinkedList<EPUBLoaderHelper>>(){
+            AsyncTask<ArrayList<String>, Integer, LinkedList<EPUBLoaderHelper>> task = new AsyncTask<ArrayList<String>, Integer, LinkedList<EPUBLoaderHelper>>(){
 
-                protected LinkedList<EPUBLoaderHelper> doInBackground(LinkedList<String>... ppath) {
+                protected LinkedList<EPUBLoaderHelper> doInBackground(ArrayList<String>... ppath) {
 
                     LinkedList<EPUBLoaderHelper> loaderHelpers = new LinkedList<EPUBLoaderHelper>();
 
                     for (String epubFile : pselectedbooks) {
-                        loaderHelpers.add(new EPUBLoaderHelper(epubFile));
+                        try {
+                            loaderHelpers.add(new EPUBLoaderHelper(epubFile));
+                        }catch (IOException e){
+                            Log.e("LWEPUB","Invalid zip file "+epubFile+" -> "+e.getMessage());
+                        }
                     }
 
                     int i=0;
@@ -99,6 +108,8 @@ public class EPUBImporter {
                         newBook.setMostRecentOrder(-1);
                         newBook.setMarginPercentage(85);
                         newBook.setFontSize("14");
+                        newBook.setTranslationConfiguration(mPrefs.getInt(ConfigurationActivity.DEFAULT_LANGUAGE, 0));
+                        newBook.setColorMode(mPrefs.getInt(ConfigurationActivity.DEFAULT_COLOR,0));
 
                         InputStream coverStream = epubLoader.getBookCover();
                         if (coverStream == null) {

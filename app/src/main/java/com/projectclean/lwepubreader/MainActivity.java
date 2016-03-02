@@ -2,35 +2,48 @@ package com.projectclean.lwepubreader;
 
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.appodeal.ads.Appodeal;
+import com.dropbox.core.v2.files.FileMetadata;
 import com.projectclean.lwepubreader.adapters.CustomFragmentPagerAdapter;
+import com.projectclean.lwepubreader.dropbox.DropboxHelper;
+import com.projectclean.lwepubreader.eventbus.EventBusFactory;
 import com.projectclean.lwepubreader.fragments.MyLibraryFragment;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.DateTimeUtils;
 import com.projectclean.lwepubreader.utils.EPUBDialogFactory;
 import com.projectclean.lwepubreader.utils.OnEPUBDialogClickListener;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener{
 
     private ViewPager mViewPager;
     private CustomFragmentPagerAdapter mCustomPageAdapter;
     private Toolbar mToolBar;
+    private DropboxHelper mDropboxHelper;
+
+    private boolean mTokenNeeded;
+    private int mCurrentSelectedIndex;
+    private Book mCurrentSelectedBook;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         DateTimeUtils.getCurrentDate();
 
         initializeAppodeal();
+
+        mDropboxHelper = new DropboxHelper(this);
     }
 
     public void onResume(){
@@ -93,6 +108,18 @@ public class MainActivity extends AppCompatActivity {
         updateLists();
 
         Appodeal.onResume(this, Appodeal.BANNER);
+
+        if (mTokenNeeded) {
+            mTokenNeeded = false;
+            initClient();
+        }
+    }
+
+    public void onPause(){
+        super.onPause();
+        if (mDropboxHelper.isThereATaskInProcess()){
+            mDropboxHelper.cancelTask();
+        }
     }
 
     public void updateLists(){
@@ -125,13 +152,37 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+        }else if (id == R.id.action_dropbox) {
+            EPUBDialogFactory.createAndShowAlertDialog(this, getString(R.string.import_from_dropbox_dialog_title), getString(R.string.dropbox_terms_message), new OnEPUBDialogClickListener() {
+                @Override
+                public void onPositiveButtonClick() {
+                    if (mDropboxHelper.hasToken()){
+                        initClient();
+                    }else {
+                        mDropboxHelper.authenticate();
+                        mTokenNeeded = true;
+                    }
+                }
 
+                @Override
+                public void onNegativeButtonClick() {
+
+                }
+            });
+        }else if (id == R.id.action_settings){
+            Router.showConfiguration(this);
         }
+
+
         return super.onOptionsItemSelected(item);
     }
 
-    public void importSelectedBooks(LinkedList<String> pepubs){
+    public void importSelectedBooks(ArrayList<String> pepubs){
         mCustomPageAdapter.getMyLibraryFragment().importSelectedBooks(pepubs);
+    }
+
+    public void importSelectedBooksFromDropbox(LinkedList<FileMetadata> pepubs){
+        mCustomPageAdapter.getMyLibraryFragment().importSelectedBooksFromDropbox(pepubs, mDropboxHelper);
     }
 
     @Override
@@ -149,19 +200,37 @@ public class MainActivity extends AppCompatActivity {
                 b.setRead(true);
                 b.save();
                 updateLists();
+                showSnackBarMessage(getString(R.string.book_moved_to_read), Snackbar.LENGTH_SHORT);
                 return true;
             case R.id.context_menu_delete:
-                //Log.i("LWEPUB","mCurrentLongClickSelectedItem:"+mCurrentLongClickSelectedItem);
                 b.delete();
-                //Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.main_fragment_container), "Welcome to AndroidHive", Snackbar.LENGTH_LONG);
-
-                //snackbar.show();
-                //b.setDeleted(true);
-                //b.save();
                 updateLists();
+                showSnackBarMessage(getString(R.string.book_deleted), Snackbar.LENGTH_SHORT);
                 return true;
             default:
                 return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.context_menu_view_details:
+                Router.showBookDetails(this, mCurrentSelectedBook.getId());
+                return true;
+            case R.id.context_menu_mask_as_read:
+                mCurrentSelectedBook.setRead(true);
+                mCurrentSelectedBook.save();
+                updateLists();
+                showSnackBarMessage(getString(R.string.book_moved_to_read), Snackbar.LENGTH_SHORT);
+                return true;
+            case R.id.context_menu_delete:
+                mCurrentSelectedBook.delete();
+                updateLists();
+                showSnackBarMessage(getString(R.string.book_deleted), Snackbar.LENGTH_SHORT);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -173,4 +242,37 @@ public class MainActivity extends AppCompatActivity {
         Appodeal.initialize(this, appKey, Appodeal.INTERSTITIAL | Appodeal.BANNER);
         Appodeal.show(this, Appodeal.BANNER_VIEW);
     }
+
+    public void initClient(){
+        mDropboxHelper.getToken();
+        mDropboxHelper.initClient(Router.showSpinnerLoadingDialog(MainActivity.this, "Buscando epubs en su cuenta de Dropbox..."));
+    }
+
+    public void showSnackBarMessage(String pmessage,int pduration){
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.tab_layout), pmessage, pduration);
+
+        View snackbarView = snackbar.getView();
+
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)snackbarView.getLayoutParams();
+        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+        snackbarView.setLayoutParams(params);
+
+        snackbarView.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        TextView textView = (TextView) snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setTextColor(getResources().getColor(R.color.pcg_orange));
+        snackbar.show();
+    }
+
+    public void showPopupMenu(int pindex,Book pbook,View panchorview){
+        mCurrentSelectedIndex = pindex;
+        mCurrentSelectedBook = pbook;
+
+        PopupMenu popup = new PopupMenu(this, panchorview);
+        popup.setOnMenuItemClickListener(this);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.listview_context_menu, popup.getMenu());
+        popup.show();
+    }
+
+
 }

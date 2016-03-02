@@ -1,61 +1,70 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0099cc"
-    tools:context="com.projectclean.lwepubreader.activities.EPUBActivity">
-
-    <WebView
-        android:id="@+id/fullscreen_content"
+    android:layout_height="match_parent">
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:keepScreenOn="true"
-        android:text="@string/dummy_content"
-        android:textColor="#33b5e5"/>
+        android:background="#0099cc"
+        tools:context="com.projectclean.lwepubreader.activities.EPUBActivity">
 
-    <TextView
-        android:id="@+id/page_number_indicator"
-        android:text="@string/loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:textAlignment="center"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
-        android:layout_marginBottom="3dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:background="#828282" />
+        <WebView
+            android:id="@+id/fullscreen_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"
+            android:text="@string/dummy_content"
+            android:textColor="#33b5e5"/>
 
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
-
-        <LinearLayout
-            android:id="@+id/fullscreen_content_controls"
-            style="?metaButtonBarStyle"
+        <TextView
+            android:id="@+id/page_number_indicator"
+            android:text="@string/loading"
+            android:textSize="18dp"
+            android:textColor="@color/pcg_orange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@color/black_overlay"
-            android:orientation="vertical"
-            tools:ignore="UselessParent"
-            android:padding="5dp"
-            android:visibility="gone">
+            android:layout_gravity="center_horizontal|bottom"
+            android:textAlignment="center"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginBottom="3dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:background="#7f212121" />
 
-            <SeekBar
-                android:id="@+id/percentage_selector_slider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/current_time_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:textColor="@color/pcg_orange"
+            android:textAlignment="center"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginBottom="3dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:background="@color/colorPrimary" />
+
+        <!-- This FrameLayout insets its children based on system windows using
+             android:fitsSystemWindows. -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:id="@+id/fullscreen_top_content_controls"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@color/black_overlay"
+                android:visibility="visible"
+                android:layout_gravity="center_horizontal|top"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp">
 
                 <ImageButton
                     android:id="@+id/button_style_normal_mode"
@@ -90,45 +99,84 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:id="@+id/fullscreen_content_controls"
+                style="?metaButtonBarStyle"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:background="@color/black_overlay"
+                android:orientation="vertical"
+                tools:ignore="UselessParent"
+                android:padding="5dp"
+                android:visibility="gone">
 
-                <ImageView
-                    android:src="@drawable/font_size_change"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <SeekBar
-                    android:id="@+id/seekbar_font_change"
-                    android:max="@integer/max_font_size_px"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:src="@drawable/book_completion_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <SeekBar
+                        android:id="@+id/percentage_selector_slider"
+                        android:max="@integer/max_font_size_px"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical" />
+                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:src="@drawable/font_size_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <SeekBar
+                        android:id="@+id/seekbar_font_change"
+                        android:max="@integer/max_font_size_px"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:src="@drawable/margin_size_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <SeekBar
+                        android:id="@+id/seekbar_margin_change"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical" />
+
+                </LinearLayout>
 
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:src="@drawable/font_size_change"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <SeekBar
-                    android:id="@+id/seekbar_margin_change"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical" />
-
-            </LinearLayout>
-
-        </LinearLayout>
+        </FrameLayout>
     </FrameLayout>
-
-</FrameLayout>
+    <ListView android:id="@+id/left_drawer"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#111"/>
+</android.support.v4.widget.DrawerLayout>

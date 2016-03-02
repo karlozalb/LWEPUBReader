@@ -1,7 +1,10 @@
 package com.projectclean.lwepubreader.fragments;
 
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -36,6 +39,8 @@ public class ProgressDialogFragment extends DialogFragment {
         mProgressBar = (ProgressBar)v.findViewById(R.id.loading_dialog_progress);
         mCurrentBook = (TextView)v.findViewById(R.id.loading_dialog_tv_current_book);
 
+        setCancelable(false);
+
         return new AlertDialog.Builder(getActivity())
                 .setCancelable(false)
                 .setView(v)
@@ -50,4 +55,5 @@ public class ProgressDialogFragment extends DialogFragment {
     public TextView getCurrentBookTextView(){
         return mCurrentBook;
     }
+
 }
