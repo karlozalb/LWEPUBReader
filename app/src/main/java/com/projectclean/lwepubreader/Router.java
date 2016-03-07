@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import com.dropbox.core.v2.files.FileMetadata;
+import com.projectclean.lwepubreader.activities.AboutUsActivity;
 import com.projectclean.lwepubreader.activities.BookDetailsActivity;
 import com.projectclean.lwepubreader.activities.ConfigurationActivity;
 import com.projectclean.lwepubreader.activities.EPUBActivity;
@@ -54,6 +55,11 @@ public class Router {
     public static void showBookDetails(Activity pcontext,long pbookid){
         Intent intent = new Intent(pcontext, BookDetailsActivity.class);
         intent.putExtra(BookDetailsActivity.EXTRA_ID, pbookid);
+        pcontext.startActivity(intent);
+    }
+
+    public static void showAboutUsDetails(Activity pcontext){
+        Intent intent = new Intent(pcontext, AboutUsActivity.class);
         pcontext.startActivity(intent);
     }
 

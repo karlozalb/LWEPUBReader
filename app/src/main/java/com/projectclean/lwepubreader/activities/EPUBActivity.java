@@ -29,6 +29,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appodeal.ads.Appodeal;
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.adapters.BookPagePagerAdapter;
@@ -280,6 +281,10 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         };
 
         mEnableOverEPUBControl = true;
+
+        if (Math.random() <= 0.5f) {
+            Appodeal.show(this, Appodeal.INTERSTITIAL);
+        }
     }
 
     public void onStop(){
@@ -471,7 +476,6 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
         webView.setWebViewClient(new WebViewClient() {
                                      public void onPageFinished(WebView view, String url) {
-
                                          int[] virtualSizes = updateMargins();
                                          if (mBook.getWidth() == null || mBook.getHeight() == null) {
                                              webView.loadUrl("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");");
@@ -484,7 +488,6 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
                                              }
                                              webView.loadUrl("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");");
                                          }
-
                                      }
                                  }
         );
@@ -546,24 +549,26 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
     //GUI Update methods
     public void setUIPageData(final String pcurrentpage,final String plastpage) {
-
         try {
             int currentPage = Integer.parseInt(pcurrentpage);
+
+            if (currentPage == -1) return;
+
             int lastpage = Integer.parseInt(plastpage);
 
             mBook.setBookCompletion((float)currentPage/(float)lastpage);
             mBook.save();
 
+            mCurrentPageTextView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mCurrentPageTextView.setText(pcurrentpage + "/" + plastpage);
+                }
+            });
+
         }catch (NumberFormatException exception){
             //Undefined detected somewhere!
         }
-
-        mCurrentPageTextView.post(new Runnable() {
-            @Override
-            public void run() {
-                mCurrentPageTextView.setText(pcurrentpage + "/" + plastpage);
-            }
-        });
     }
 
     public void setSelectedText(String pselectedtext){

@@ -14,7 +14,7 @@ public class DropboxClientFactory {
     private static DbxClientV2 sDbxClient;
 
     public static void init(String accessToken) {
-        if (sDbxClient == null) {
+        if (sDbxClient == null && accessToken != null) {
             String userLocale = Locale.getDefault().toString();
             DbxRequestConfig requestConfig = new DbxRequestConfig("swiftreader-dropbox-v2",userLocale,OkHttpRequestor.INSTANCE);
             sDbxClient = new DbxClientV2(requestConfig, accessToken);

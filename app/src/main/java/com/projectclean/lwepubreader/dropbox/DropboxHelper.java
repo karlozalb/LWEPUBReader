@@ -70,8 +70,13 @@ public class DropboxHelper {
 
     private void initClient(String accessToken,SpinnerDialogFragment pdialog){
         DropboxClientFactory.init(accessToken);
-        mClient = DropboxClientFactory.getClient();
-        searchForEpubs(pdialog);
+        try {
+            mClient = DropboxClientFactory.getClient();
+            searchForEpubs(pdialog);
+        }catch(Exception e){
+            pdialog.dismiss();
+            Log.i("LWEPUB",e.getMessage());
+        }
     }
 
     public void searchForEpubs(final SpinnerDialogFragment pdialog){

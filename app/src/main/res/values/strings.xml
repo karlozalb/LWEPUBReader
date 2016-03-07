@@ -1,69 +1,70 @@
 <resources>
     <string name="app_name">SwiftReader</string>
     <string name="app_name_swiftreader">SwiftReader</string>
-    <string name="mylibrary">Mi biblioteca</string>
+    <string name="mylibrary">Mi library</string>
 
     <string name="title_activity_epub">EPUBActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
-    <string name="translation_dialog_title">Traducción: </string>
+    <string name="translation_dialog_title">Translation: </string>
 
-    <string name="loading_dialog_title">Importando...</string>
-    <string name="loading_dialog_message">Se están importando los libros que has seleccionado.</string>
-    <string name="infinite_loading_dialog_message">Buscando epubs, espera un momento por favor...</string>
-    <string name="loading_dialog_message_book">Libro: </string>
+    <string name="loading_dialog_title">Importing...</string>
+    <string name="loading_dialog_message">Importing selected books.</string>
+    <string name="infinite_loading_dialog_message">Searching epubs, wait a moment please...</string>
+    <string name="loading_dialog_message_book">Book: </string>
 
-    <string name="books_already_imported">Libros importados :)</string>
-    <string name="book_deleted">Libro borrado de la lista</string>
-    <string name="book_moved_to_read">Libro movido a \'Leidos\'</string>
+    <string name="books_already_imported">Books successfully imported :)</string>
+    <string name="book_deleted">Book deleted!</string>
+    <string name="book_moved_to_read">Book moved to \'Read\'</string>
 
-    <string name="file_chooser_dialog_title">Libros para importar</string>
+    <string name="file_chooser_dialog_title">Books to import</string>
 
-    <string name="mylibrary_tab_title">Biblioteca</string>
-    <string name="read_tab_title">Leidos</string>
-    <string name="most_recent_tab_title">Recientes</string>
+    <string name="mylibrary_tab_title">Library</string>
+    <string name="read_tab_title">Read</string>
+    <string name="most_recent_tab_title">Most recent</string>
 
-    <string name="context_menu_view_details_text">Ver detalles</string>
-    <string name="context_menu_mark_as_read_text">Marcar como leido</string>
-    <string name="context_menu_delete_text">Eliminar</string>
+    <string name="context_menu_view_details_text">Details</string>
+    <string name="context_menu_mark_as_read_text">Mark as read</string>
+    <string name="context_menu_delete_text">Delete</string>
 
-    <string name="mylibrary_empty_text">Pulsa sobre el botón actualizar (abajo a la derecha) para añadir tus libros a la biblioteca.</string>
-    <string name="read_empty_text">Cuando acabes de leer un libro, aparecerá en esta lista</string>
-    <string name="most_recent_empty_text">Una vez empieces a leer un libro, se mostrará en esta lista :)</string>
+    <string name="mylibrary_empty_text">Press the update button (bottom-right corner) to add your books to the library.</string>
+    <string name="read_empty_text">As soon as you read a book, it will appear in this list</string>
+    <string name="most_recent_empty_text">When you start reading a book, it will appear in this list</string>
 
-    <string name="action_settings">Configuración</string>
-    <string name="action_delete_all">Borrar librería</string>
-    <string name="action_dropbox">Importar desde Dropbox</string>
-    <string name="action_drive">Importar desde Drive</string>
+    <string name="action_settings">Settings</string>
+    <string name="about_us">About SwiftReader...</string>
+    <string name="action_delete_all">Delete library</string>
+    <string name="action_dropbox">Import from Dropbox</string>
+    <string name="action_drive">Import from Drive</string>
 
-    <string name="button_add">Añadir</string>
-    <string name="button_select_all">Marcar todos</string>
-    <string name="button_select_none">Desmarcar todos</string>
+    <string name="button_add">Add</string>
+    <string name="button_select_all">Select all</string>
+    <string name="button_select_none">Unselect all</string>
 
-    <string name="book_title">Título:</string>
-    <string name="book_author">Escrito por:</string>
-    <string name="book_added">Añadido:</string>
-    <string name="book_last_read">Última lectura:</string>
-    <string name="book_translation_config">Traducción:</string>
+    <string name="book_title">Title:</string>
+    <string name="book_author">Written by:</string>
+    <string name="book_added">Added:</string>
+    <string name="book_last_read">Last read:</string>
+    <string name="book_translation_config">Translation:</string>
 
-    <string name="delete_all_dialog_title">Borrar todos</string>
-    <string name="delete_all_dialog_message">¿Quiere eliminar toda su librería? Los archivos no se borrarán del dispositivo</string>
+    <string name="delete_all_dialog_title">Delete all</string>
+    <string name="delete_all_dialog_message">Do you want to clear your library? The files won\'t be deleted from your device</string>
 
-    <string name="import_from_dropbox_dialog_title">Importar desde Dropbox</string>
-    <string name="dropbox_terms_message">Vas a proceder a sincronizar esta aplicación con Dropbox. SwiftReader: \n 1. No hará uso de ningún dato acerca de tu cuenta de Dropbox (email, usuario, etc.) \n 2. Solo y exclusivamente obtendrá los archivos con extensión epub que previamente hayas seleccionado.\n ¿Quieres continuar?</string>
+    <string name="import_from_dropbox_dialog_title">Import from Dropbox</string>
+    <string name="dropbox_terms_message">You are about to synchronize this app with Dropbox. SwiftReader: \n 1. Will NOT use any data about your Dropbox account (email, user, etc.) \n 2. Will exclusively use and process the selected epub files, and not other files.\n Do you want to continue?</string>
 
-    <string name="loading">Cargando...</string>
+    <string name="loading">Loading...</string>
 
-    <string name="developedby">Desarrollado por:</string>
+    <string name="developedby">Developed by:</string>
     <string name="me">Carlos Albaladejo Pérez (karlozalb)</string>
-    <string name="version">1.0</string>
+    <string name="version">Version 1.0a</string>
     <string name="year">2016</string>
     <string name="epubrendering">EPUB rendering thanks to Futurepress epub.js library</string>
 
     <string name="dropbox_app_key">ss3w7508nyebr8i</string>
 
-    <string name="translate_action_button">Traducir</string>
+    <string name="translate_action_button">Translate</string>
 
     <string-array name="languages_list">
         <item>Español -> English</item>
@@ -82,9 +83,21 @@
     </string-array>
 
     <string-array name="color_modes">
-        <item>Blanco</item>
+        <item>White</item>
         <item>Sepia</item>
-        <item>Negro</item>
+        <item>Black</item>
     </string-array>
+
+    <string name="about_us_line1">SwiftReader has been designed and developed by Carlos Albaladejo Pérez (aka karlozalb). (EPUB rendering library epub.js created by futurepress)</string>
+    <string name="website">www.karlozalb.com</string>
+    <string name="about_us_thanks">Thanks for using SwiftReader!</string>
+    <string name="about_the_creator">About the developer</string>
+
+    <string name="configuration_render_options">Reading options</string>
+    <string name="configuration_show_clock">Show clock</string>
+    <string name="configuration_color_mode">Default color</string>
+    <string name="configuration_translation_mode">Translation options</string>
+    <string name="configuration_translation_message">This is the default option, you can choose specific translation options throught the \'Details\' menu of each book.</string>
+    <string name="translation">Translation</string>
 
 </resources>

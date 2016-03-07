@@ -151,21 +151,26 @@
 
 <script>
             function loadBook(pbookpath,pfontsize,location,pwidth,pheight,pmode){
+                console.log("*");
                 book = ePub(pbookpath);//"Brandon Sanderson - [Stormlight Archive 01] - The Way of Kings [v5.0] [epub].epub");
+                console.log("*");
                 fontSize = pfontsize;
+                console.log("*");
                 book.setStyle("font-size",pfontsize);
-
+                console.log("*");
                 setColorMode(pmode);
-
+                console.log("*");
                 if (location != 'null'){
+                    console.log("*l");
                     book.gotoCfi(location);
                 }
-
+                console.log("*");
                 setBookWidth(pwidth);
+                console.log("*");
                 setBookHeight(pheight);
-
+                console.log("*");
                 rendered = book.renderTo("area");
-
+                console.log("*");
                 if (pagination && pagination != "undefined"){
                     console.log("Loading previously created pageList.");
                     book.loadPagination(pagination);
@@ -174,8 +179,10 @@
                         console.log("Page list generated and saved.");
                         pagination = pageList;
                         Android.saveBookPagination(JSON.stringify(pageList));
+                        console.log("*");
                     });
                 }
+                console.log("*");
 
                 book.ready.all.then(function(){
 

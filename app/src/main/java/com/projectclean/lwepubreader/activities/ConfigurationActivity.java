@@ -46,6 +46,12 @@ public class ConfigurationActivity extends AppCompatActivity implements AdapterV
         mToolBar = (Toolbar) findViewById(R.id.configuration_toolbar);
         setSupportActionBar(mToolBar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+
+        mToolBar.setTitle(getString(R.string.action_settings));
+
         mDefaultLanguage.setSelection(mPrefs.getInt(DEFAULT_LANGUAGE, 0));
 
         mDefaultLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

@@ -85,6 +85,15 @@ public class FileChooserListAdapter  extends BaseAdapter {
             convertView.setTag(holder);
         }else{
             holder = (FileChooserViewHolder)convertView.getTag();
+
+            holder.CHECKED_TEXTVIEW.setOnClickListener(new View.OnClickListener() {
+                                                           @Override
+                                                           public void onClick(View v) {
+                                                               mFiles.get(position).CHECKED = !mFiles.get(position).CHECKED;
+                                                               holder.CHECKED_TEXTVIEW.setChecked(mFiles.get(position).CHECKED);
+                                                           }
+                                                       }
+            );
         }
 
         holder.CHECKED_TEXTVIEW.setChecked(mFiles.get(position).CHECKED);

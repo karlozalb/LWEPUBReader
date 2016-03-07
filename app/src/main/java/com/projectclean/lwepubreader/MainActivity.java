@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.appodeal.ads.Appodeal;
 import com.dropbox.core.v2.files.FileMetadata;
+import com.orm.SugarContext;
 import com.projectclean.lwepubreader.adapters.CustomFragmentPagerAdapter;
 import com.projectclean.lwepubreader.dropbox.DropboxHelper;
 import com.projectclean.lwepubreader.eventbus.EventBusFactory;
@@ -48,6 +49,9 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SugarContext.init(this);
+
         setContentView(R.layout.layout_activity_main_viewpager);
 
         TabLayout tabLayout = (TabLayout)findViewById(R.id.tab_layout);
@@ -122,6 +126,10 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }
     }
 
+    public void onTerminate(){
+        SugarContext.terminate();
+    }
+
     public void updateLists(){
         mCustomPageAdapter.updateFragmentLists();
     }
@@ -153,24 +161,30 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 }
             });
         }else if (id == R.id.action_dropbox) {
-            EPUBDialogFactory.createAndShowAlertDialog(this, getString(R.string.import_from_dropbox_dialog_title), getString(R.string.dropbox_terms_message), new OnEPUBDialogClickListener() {
-                @Override
-                public void onPositiveButtonClick() {
-                    if (mDropboxHelper.hasToken()){
-                        initClient();
-                    }else {
-                        mDropboxHelper.authenticate();
-                        mTokenNeeded = true;
+            if (mDropboxHelper.hasToken()){
+                initClient();
+            }else {
+                EPUBDialogFactory.createAndShowAlertDialog(this, getString(R.string.import_from_dropbox_dialog_title), getString(R.string.dropbox_terms_message), new OnEPUBDialogClickListener() {
+                    @Override
+                    public void onPositiveButtonClick() {
+                        if (mDropboxHelper.hasToken()) {
+                            initClient();
+                        } else {
+                            mDropboxHelper.authenticate();
+                            mTokenNeeded = true;
+                        }
                     }
-                }
 
-                @Override
-                public void onNegativeButtonClick() {
+                    @Override
+                    public void onNegativeButtonClick() {
 
-                }
-            });
+                    }
+                });
+            }
         }else if (id == R.id.action_settings){
             Router.showConfiguration(this);
+        }else if (id == R.id.about_us){
+            Router.showAboutUsDetails(this);
         }
 
 
