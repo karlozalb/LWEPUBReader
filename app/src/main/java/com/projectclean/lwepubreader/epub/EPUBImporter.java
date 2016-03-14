@@ -2,16 +2,13 @@ package com.projectclean.lwepubreader.epub;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.util.Log;
 
-import com.pcg.epubloader.EPUBLoaderHelper;
-import com.pcg.exceptions.EPUBException;
 import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.activities.ConfigurationActivity;
-import com.projectclean.lwepubreader.fragments.MyLibraryFragment;
+import com.projectclean.lwepubreader.epub.epubloader.EPUBLoaderHelper;
+import com.projectclean.lwepubreader.epub.exceptions.EPUBException;
 import com.projectclean.lwepubreader.fragments.ProgressDialogFragment;
 import com.projectclean.lwepubreader.fragments.SpinnerDialogFragment;
 import com.projectclean.lwepubreader.io.FileUtils;
@@ -23,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by Carlos Albaladejo Pérez on 22/12/2015.

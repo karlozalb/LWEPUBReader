@@ -28,10 +28,24 @@
             android:layout_marginLeft="2dp" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/file_chooser_list_view"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    </ListView>
+
+        <TextView
+            android:id="@+id/filechooser_empty_textview"
+            android:text="@string/nothing_to_import"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/empty_text_listview_padding"
+            android:visibility="gone"
+            android:gravity="center_vertical|center_horizontal" />
+
+        <ListView
+            android:id="@+id/file_chooser_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </ListView>
+    </RelativeLayout>
 
 </LinearLayout>

@@ -78,6 +78,8 @@ public class TranslationProvider {
      public void translate(String ptext, ITranslationCallBack pcallback) throws IOException{
 
          ptext = ptext.replace(" ","%20");
+         ptext = ptext.replace("\t","%20");
+         ptext = ptext.replace("\n","%20");
 
          switch(mConfig){
              case 0:

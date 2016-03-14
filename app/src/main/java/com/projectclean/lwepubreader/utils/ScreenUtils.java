@@ -29,4 +29,9 @@ public class ScreenUtils {
         return (int)((pdps * displayMetrics.density) + 0.5);
     }
 
+    public static int getDpFromPixels(Activity pcontext,int ppixels){
+        DisplayMetrics displayMetrics =  pcontext.getResources().getDisplayMetrics();
+        return (int)((ppixels - 0.5) / displayMetrics.density);
+    }
+
 }

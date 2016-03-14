@@ -8,12 +8,13 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.google.common.io.CharStreams;
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.activities.EPUBActivity;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,7 +52,8 @@ public class BookPagePagerAdapter extends PagerAdapter {
         String htmlSite = "";
 
         try {
-            htmlSite = IOUtils.toString(new InputStreamReader(mParentActivity.getAssets().open("epub_page_skeleton.html")));
+            //htmlSite = IOUtils.toString(new InputStreamReader(mParentActivity.getAssets().open("epub_page_skeleton.html")));
+            htmlSite = CharStreams.toString(new InputStreamReader(mParentActivity.getAssets().open("epub_page_skeleton.html"), "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

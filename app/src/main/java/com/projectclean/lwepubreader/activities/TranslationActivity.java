@@ -4,9 +4,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
 
+import com.google.common.io.CharStreams;
 import com.projectclean.lwepubreader.R;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,8 +37,10 @@ public class TranslationActivity extends AppCompatActivity{
 
         String htmlWebSitePart1 = "",htmlWebSitePart2 = "";
         try {
-            htmlWebSitePart1 = IOUtils.toString(new InputStreamReader(getAssets().open("translation_page_skeleton_1.html")));
-            htmlWebSitePart2 = IOUtils.toString(new InputStreamReader(getAssets().open("translation_page_skeleton_2.html")));
+            //htmlWebSitePart1 = IOUtils.toString(new InputStreamReader(getAssets().open("translation_page_skeleton_1.html")));
+            //htmlWebSitePart2 = IOUtils.toString(new InputStreamReader(getAssets().open("translation_page_skeleton_2.html")));
+            htmlWebSitePart1 = CharStreams.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html"), "UTF-8"));
+            htmlWebSitePart2 = CharStreams.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html"), "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

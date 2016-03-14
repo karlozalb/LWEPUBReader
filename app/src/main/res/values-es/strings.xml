@@ -29,7 +29,7 @@
     <string name="context_menu_delete_text">Eliminar</string>
 
     <string name="mylibrary_empty_text">Pulsa sobre el botón actualizar (abajo a la derecha) para añadir tus libros a la biblioteca.</string>
-    <string name="read_empty_text">Cuando acabes de leer un libro, aparecerá en esta lista</string>
+    <string name="read_empty_text">Cuando marques un libro como leido, aparecerá en esta lista</string>
     <string name="most_recent_empty_text">Una vez empieces a leer un libro, se mostrará en esta lista :)</string>
 
     <string name="action_settings">Configuración</string>
@@ -53,6 +53,7 @@
 
     <string name="import_from_dropbox_dialog_title">Importar desde Dropbox</string>
     <string name="dropbox_terms_message">Vas a proceder a sincronizar esta aplicación con Dropbox. SwiftReader: \n 1. No hará uso de ningún dato acerca de tu cuenta de Dropbox (email, usuario, etc.) \n 2. Solo y exclusivamente obtendrá los archivos con extensión epub que previamente hayas seleccionado.\n ¿Quieres continuar?</string>
+    <string name="dropbox_sync_title">Buscando epubs en tu carpeta de Dropbox...</string>
 
     <string name="loading">Cargando...</string>
 
@@ -99,5 +100,8 @@
     <string name="configuration_translation_mode">Opciones de traducción</string>
     <string name="configuration_translation_message">Esta es la opción por defecto, puedes seleccionar opciones de traducción específica para cada libro dentro del menú \'Ver detalles\' de cada libro.</string>
     <string name="translation">Traducción</string>
+
+    <string name="no_internet_error">No hay conexión a internet :(</string>
+    <string name="nothing_to_import">¡Nada nuevo que importar!</string>
 
 </resources>

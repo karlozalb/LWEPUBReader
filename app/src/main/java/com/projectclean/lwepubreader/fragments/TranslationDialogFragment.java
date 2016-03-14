@@ -8,9 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebView;
 
+import com.google.common.io.CharStreams;
 import com.projectclean.lwepubreader.R;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,8 +48,10 @@ public class TranslationDialogFragment extends DialogFragment {
     public void initializeWebView(WebView pwebview,String pcontent){
         String htmlWebSitePart1 = "",htmlWebSitePart2 = "";
         try {
-            htmlWebSitePart1 = IOUtils.toString(new InputStreamReader(getActivity().getAssets().open("translation_page_skeleton_1.html")));
-            htmlWebSitePart2 = IOUtils.toString(new InputStreamReader(getActivity().getAssets().open("translation_page_skeleton_2.html")));
+            //htmlWebSitePart1 = IOUtils.toString(new InputStreamReader(getActivity().getAssets().open("translation_page_skeleton_1.html")));
+            //htmlWebSitePart2 = IOUtils.toString(new InputStreamReader(getActivity().getAssets().open("translation_page_skeleton_2.html")));
+            htmlWebSitePart1 = CharStreams.toString(new InputStreamReader(getActivity().getAssets().open("translation_page_skeleton_1.html"), "UTF-8"));
+            htmlWebSitePart2 = CharStreams.toString(new InputStreamReader(getActivity().getAssets().open("translation_page_skeleton_2.html"), "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

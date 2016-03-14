@@ -26,13 +26,13 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
+        android:background="@android:color/black"/>
 
     <CheckedTextView
         android:text="@string/configuration_show_clock"
         android:id="@+id/configuration_show_clock"
         android:layout_width="match_parent"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@android:color/black"
         android:checkMark="?android:attr/listChoiceIndicatorMultiple"
         android:textSize="16dp"
         android:layout_height="60dp"
@@ -48,7 +48,7 @@
         <TextView
             android:text="@string/configuration_color_mode"
             android:textSize="16dp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@android:color/black"
             android:textAlignment="gravity"
             android:gravity="center_vertical"
             android:layout_width="wrap_content"
@@ -74,12 +74,12 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"/>
+        android:background="@android:color/black"/>
 
     <TextView
         android:text="@string/configuration_translation_message"
         android:padding="10dp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@android:color/black"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -91,7 +91,7 @@
         <TextView
             android:text="@string/translation"
             android:textSize="16dp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@android:color/black"
             android:textAlignment="gravity"
             android:gravity="center_vertical"
             android:layout_width="wrap_content"

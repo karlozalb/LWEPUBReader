@@ -12,7 +12,7 @@ import com.projectclean.lwepubreader.activities.EPUBActivity;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -38,11 +38,11 @@ public class EPUBRenderingFragment extends GenericFragment{
 
         String htmlSite = "";
 
-        try {
+        /*try {
             htmlSite = IOUtils.toString(new InputStreamReader(mParentActivity.getAssets().open("epub_page_skeleton.html")));
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         mWebView.loadDataWithBaseURL("file:///android_asset/", htmlSite, "text/html", "UTF-8", null);
         setWebViewConfiguration();

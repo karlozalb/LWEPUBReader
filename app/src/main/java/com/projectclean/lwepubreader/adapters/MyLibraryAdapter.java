@@ -1,38 +1,23 @@
 package com.projectclean.lwepubreader.adapters;
 
 import android.app.Activity;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.pcg.epubloader.EPUBLoaderHelper;
-import com.pcg.epubspec.Manifest;
-import com.pcg.epubspec.Spine;
-import com.pcg.exceptions.EPUBException;
 import com.projectclean.lwepubreader.MainActivity;
-import com.projectclean.lwepubreader.listnodes.MyLibraryBookListNode;
 import com.projectclean.lwepubreader.R;
+import com.projectclean.lwepubreader.epub.epubloader.EPUBLoaderHelper;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.picassoext.CircleTransform;
 import com.projectclean.lwepubreader.utils.CoverThumbGenerator;
-import com.projectclean.lwepubreader.utils.JavascriptUtils;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -133,7 +118,8 @@ public class MyLibraryAdapter extends BaseAdapter {
 
         holder.AUTHOR.setText(currentBook.getAuthor());
         holder.TITLE.setText(currentBook.getTitle());
-        Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).transform(new CircleTransform(8)).into(holder.COVER);
+        //Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).resize(200, 266).transform(new CircleTransform(8)).into(holder.COVER);
+        Picasso.with(mActivity).load(new File(mPrivateFilesDir + "/" + currentBook.getBookCover())).transform(new CircleTransform(8)).into(holder.COVER);
         Log.i("LWEPUB","currentBook.getBookCompletion(): "+currentBook.getBookCompletion()+" - progress: "+(int) (currentBook.getBookCompletion() * 100));
         holder.PROGRESS_BAR.setProgress((int) (currentBook.getBookCompletion() * 100));
         holder.BOOK = currentBook;

@@ -8,10 +8,11 @@
 
     <ImageView
         android:id="@+id/mylibrary_item_cover"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:contentDescription="book cover thumbnail" />
+        android:layout_width="90dp"
+        android:layout_height="120dp"
+        android:contentDescription="book cover thumbnail"
+        android:maxHeight="120dp"
+        android:scaleType="fitXY" />
 
     <FrameLayout
         android:layout_weight="3"

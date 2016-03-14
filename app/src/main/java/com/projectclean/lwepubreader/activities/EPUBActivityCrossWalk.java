@@ -179,6 +179,8 @@
 //    //Flag to avoid page change when selecting text on the WebView.
 //    private boolean mEnableOverEPUBControl;
 //
+//    private boolean mWebSiteFirstLoad = false;
+//
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -261,22 +263,27 @@
 //
 //            webView.setResourceClient(new XWalkResourceClient(webView) {
 //                                          public void onLoadFinished(XWalkView view, String url) {
-//                                              int[] virtualSizes = updateMargins();
-//                                              if (mBook.getWidth() == null || mBook.getHeight() == null) {
-//                                                  webView.load("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");", null);
-//                                              } else {
-//                                                  webView.load("javascript:setLocations('" + mBook.getLocations() + "');",null);
-//                                                  try {
-//                                                      webView.load("javascript:setPagination('" + IOUtils.toString(FileUtils.getInstance(EPUBActivityCrossWalk.this).getInputStreamFromInternalStorage(mBook.getBookFileName() + ".json")) + "');",null);
-//                                                  } catch (IOException e) {
-//                                                      e.printStackTrace();
+//                                              Log.i("LWEPUB","url:"+url);
+//                                              if (mWebSiteFirstLoad) {
+//                                                  mWebSiteFirstLoad = false;
+//                                                  int[] virtualSizes = updateMargins();
+//                                                  if (mBook.getWidth() == null || mBook.getHeight() == null) {
+//                                                      webView.load("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");", null);
+//                                                  } else {
+//                                                      webView.load("javascript:setLocations('" + mBook.getLocations() + "');", null);
+//                                                      try {
+//                                                          webView.load("javascript:setPagination('" + IOUtils.toString(FileUtils.getInstance(EPUBActivityCrossWalk.this).getInputStreamFromInternalStorage(mBook.getBookFileName() + ".json")) + "');", null);
+//                                                      } catch (IOException e) {
+//                                                          e.printStackTrace();
+//                                                      }
+//                                                      webView.load("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");", null);
 //                                                  }
-//                                                  webView.load("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");",null);
 //                                              }
 //                                          }
 //                                      }
 //            );
 //
+//            mWebSiteFirstLoad = true;
 //            ((XWalkView)mContentView).load("file:///android_asset/epub_page_skeleton.html", null);
 //
 //            //((WebView) mContentView).loadUrl("http://www.google.es");

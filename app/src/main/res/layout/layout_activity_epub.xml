@@ -68,7 +68,7 @@
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="@color/black_overlay"
+                android:background="@color/semitransparent_black"
                 android:visibility="visible"
                 android:layout_gravity="center_horizontal|top"
                 android:paddingLeft="10dp"
@@ -112,7 +112,7 @@
                 android:layout_width="320dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center_horizontal"
-                android:background="@color/black_overlay"
+                android:background="@color/semitransparent_black"
                 android:orientation="vertical"
                 tools:ignore="UselessParent"
                 android:padding="5dp"
@@ -131,6 +131,8 @@
 
                     <SeekBar
                         android:id="@+id/percentage_selector_slider"
+                        android:progressDrawable="@drawable/scrubber_progress"
+                        android:thumb="@drawable/scrubber_control"
                         android:max="@integer/max_font_size_px"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -150,6 +152,8 @@
 
                     <SeekBar
                         android:id="@+id/seekbar_font_change"
+                        android:progressDrawable="@drawable/scrubber_progress"
+                        android:thumb="@drawable/scrubber_control"
                         android:max="@integer/max_font_size_px"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -170,6 +174,8 @@
 
                     <SeekBar
                         android:id="@+id/seekbar_margin_change"
+                        android:progressDrawable="@drawable/scrubber_progress"
+                        android:thumb="@drawable/scrubber_control"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical" />

@@ -11,4 +11,6 @@
     <color name="pcg_orange">#FF8900</color>
     <color name="pcg_orange_bright">#ffad4e</color>
 
+    <color name="semitransparent_black">#DC202020</color>
+
 </resources>

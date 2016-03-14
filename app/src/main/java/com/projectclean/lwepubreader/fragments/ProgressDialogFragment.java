@@ -31,6 +31,7 @@ public class ProgressDialogFragment extends DialogFragment {
     private FileChooserListAdapter mFileChooserListAdapter;
     private ProgressBar mProgressBar;
     private TextView mCurrentBook;
+    private String mStartingFileName;
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -39,6 +40,8 @@ public class ProgressDialogFragment extends DialogFragment {
         mProgressBar = (ProgressBar)v.findViewById(R.id.loading_dialog_progress);
         mCurrentBook = (TextView)v.findViewById(R.id.loading_dialog_tv_current_book);
 
+        mCurrentBook.setText(mStartingFileName);
+
         setCancelable(false);
 
         return new AlertDialog.Builder(getActivity())
@@ -46,6 +49,10 @@ public class ProgressDialogFragment extends DialogFragment {
                 .setView(v)
                 .setTitle(R.string.loading_dialog_title)
                 .create();
+    }
+
+    public void setInitialBook(String pfilename){
+        mStartingFileName = pfilename;
     }
 
     public ProgressBar getProgressBar(){

@@ -1,6 +1,9 @@
 package com.projectclean.lwepubreader;
 
+import android.content.Context;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -25,11 +28,12 @@ import com.dropbox.core.v2.files.FileMetadata;
 import com.orm.SugarContext;
 import com.projectclean.lwepubreader.adapters.CustomFragmentPagerAdapter;
 import com.projectclean.lwepubreader.dropbox.DropboxHelper;
-import com.projectclean.lwepubreader.eventbus.EventBusFactory;
+import com.projectclean.lwepubreader.fragments.MostRecentFragment;
 import com.projectclean.lwepubreader.fragments.MyLibraryFragment;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.utils.DateTimeUtils;
 import com.projectclean.lwepubreader.utils.EPUBDialogFactory;
+import com.projectclean.lwepubreader.utils.NetworkUtils;
 import com.projectclean.lwepubreader.utils.OnEPUBDialogClickListener;
 
 import java.util.ArrayList;
@@ -107,6 +111,11 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         mDropboxHelper = new DropboxHelper(this);
     }
 
+    public void onStart(){
+        super.onStart();
+
+    }
+
     public void onResume(){
         super.onResume();
         updateLists();
@@ -161,18 +170,32 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 }
             });
         }else if (id == R.id.action_dropbox) {
-            if (mDropboxHelper.hasToken()){
-                initClient();
+            if (NetworkUtils.isNetworkAvailable(this)) {
+                if (mDropboxHelper.hasToken()) {
+                    initClient();
+                } else {
+                    EPUBDialogFactory.createAndShowAlertDialog(this, getString(R.string.import_from_dropbox_dialog_title), getString(R.string.dropbox_terms_message), new OnEPUBDialogClickListener() {
+                        @Override
+                        public void onPositiveButtonClick() {
+                            if (mDropboxHelper.hasToken()) {
+                                initClient();
+                            } else {
+                                mDropboxHelper.authenticate();
+                                mTokenNeeded = true;
+                            }
+                        }
+
+                        @Override
+                        public void onNegativeButtonClick() {
+
+                        }
+                    });
+                }
             }else {
-                EPUBDialogFactory.createAndShowAlertDialog(this, getString(R.string.import_from_dropbox_dialog_title), getString(R.string.dropbox_terms_message), new OnEPUBDialogClickListener() {
+                EPUBDialogFactory.createAndShowAlertDialogNoNegativeButton(this, "Oops...", getString(R.string.no_internet_error), new OnEPUBDialogClickListener() {
                     @Override
                     public void onPositiveButtonClick() {
-                        if (mDropboxHelper.hasToken()) {
-                            initClient();
-                        } else {
-                            mDropboxHelper.authenticate();
-                            mTokenNeeded = true;
-                        }
+
                     }
 
                     @Override
@@ -259,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
     public void initClient(){
         mDropboxHelper.getToken();
-        mDropboxHelper.initClient(Router.showSpinnerLoadingDialog(MainActivity.this, "Buscando epubs en su cuenta de Dropbox..."));
+        mDropboxHelper.initClient(Router.showSpinnerLoadingDialog(MainActivity.this, getString(R.string.import_from_dropbox_dialog_title)));
     }
 
     public void showSnackBarMessage(String pmessage,int pduration){
@@ -287,6 +310,5 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         inflater.inflate(R.menu.listview_context_menu, popup.getMenu());
         popup.show();
     }
-
 
 }

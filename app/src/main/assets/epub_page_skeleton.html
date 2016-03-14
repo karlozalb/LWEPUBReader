@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Basic ePubJS Example</title>
+    <title>SwiftReader Rendering</title>
     <meta name="description" content="">
     <meta content='user-scalable=no, initial-scale=1, width=device-width' id='viewport' name='viewport'>
 
@@ -36,7 +36,7 @@
             margin: auto auto;
             width: 80%;
             height: 80%;
-            max-width: 1250px;
+            //max-width: 1250px;
         }
 
         .vertical-centered-container{
@@ -65,6 +65,7 @@
             var fontSize,width,height;
             var previousExtentOffset,previousBaseOffset;
             var metadata;
+            var singleColumnMode;
 
             function setNightMode(){
                 $("body").css("background-color","black");
@@ -96,7 +97,7 @@
 
             function setFontSize(psize){
                 fontSize = psize;
-                book.setStyle("font-size",fontSize);
+                book.setStyle("font-size",fontSize+"px");
             }
 
             function setBookWidth(pwidth){
@@ -107,6 +108,18 @@
             function setBookHeight(pheight){
                 height = pheight;
                 $("#area").css("height",pheight+"px");
+            }
+
+            function setBookWidthAndHeight(pwidth,pheight){
+
+                if (pwidth > pheight){
+                    setMultiColumn();
+                }else{
+                    setOneColumn();
+                }
+
+                setBookWidth(pwidth);
+                setBookHeight(pheight);
             }
 
             function setLocations(storedlocations){
@@ -124,6 +137,14 @@
                 Android.setSelectedText(""+txt);
             }
 
+            function setOneColumn(){
+                book.renderer.forceSingle(true);
+            }
+
+            function setMultiColumn(){
+                book.renderer.forceSingle(false);
+            }
+
             function getSelectedTextAuthorAndBookName(){
                 var txt = book.renderer.render.window.getSelection();
                 var metadata = book.getMetadata();
@@ -138,6 +159,8 @@
             function gotoHref(phref){
                 book.gotoHref(phref);
             }
+
+
         </script>
 </head>
 <body>
@@ -150,27 +173,22 @@
 </div>
 
 <script>
-            function loadBook(pbookpath,pfontsize,location,pwidth,pheight,pmode){
-                console.log("*");
-                book = ePub(pbookpath);//"Brandon Sanderson - [Stormlight Archive 01] - The Way of Kings [v5.0] [epub].epub");
-                console.log("*");
-                fontSize = pfontsize;
-                console.log("*");
-                book.setStyle("font-size",pfontsize);
-                console.log("*");
+        function loadBook(pbookpath,pfontsize,location,pwidth,pheight,pmode){
+                book = ePub(pbookpath);
+
+                /*fontSize = pfontsize;
+                book.setStyle("font-size",pfontsize);*/
+
+                setFontSize(pfontsize);
+
                 setColorMode(pmode);
-                console.log("*");
                 if (location != 'null'){
-                    console.log("*l");
                     book.gotoCfi(location);
                 }
-                console.log("*");
-                setBookWidth(pwidth);
-                console.log("*");
-                setBookHeight(pheight);
-                console.log("*");
+
+                setBookWidthAndHeight(pwidth,pheight);
+
                 rendered = book.renderTo("area");
-                console.log("*");
                 if (pagination && pagination != "undefined"){
                     console.log("Loading previously created pageList.");
                     book.loadPagination(pagination);
@@ -179,12 +197,13 @@
                         console.log("Page list generated and saved.");
                         pagination = pageList;
                         Android.saveBookPagination(JSON.stringify(pageList));
-                        console.log("*");
+                        Android.setUIPageData(book.pagination.pageFromCfi(location),book.pagination.lastPage);
                     });
                 }
-                console.log("*");
 
                 book.ready.all.then(function(){
+
+                  console.log("llamando");
 
                   Android.setBookToc(JSON.stringify(book.getToc()));
                   metadata = book.getMetadata();
@@ -200,7 +219,6 @@
                     return book.locations.load(locations);
                   } else {
                     console.log('javascript: Locations NOT provided. They will be generated.');
-
                     return book.locations.generate(1600);
                   }
                 })

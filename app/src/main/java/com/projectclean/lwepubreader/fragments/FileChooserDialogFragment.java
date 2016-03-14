@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.dropbox.core.json.JsonReadException;
 import com.dropbox.core.v2.files.FileMetadata;
@@ -37,16 +38,24 @@ public class FileChooserDialogFragment extends DialogFragment {
 
     public AlertDialog DIALOG;
 
+    private View mView;
+    private TextView mEmptyViewId;
+
     @Override
     public void onStart() {
         super.onStart();
         ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getActivity().getResources().getColor(R.color.pcg_orange));
         ((AlertDialog) getDialog()).getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getActivity().getResources().getColor(R.color.pcg_orange));
+
+        mEmptyViewId = (TextView)mView.findViewById(R.id.filechooser_empty_textview);
+        ((ListView)mView.findViewById(R.id.file_chooser_list_view)).setEmptyView(mEmptyViewId);
     }
 
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.layout_fragment_dialog_file_chooser, null);
+
+        mView = v;
 
         if (getArguments() != null){
             List<String> epubList = getArguments().getStringArrayList(EPUB_LIST);

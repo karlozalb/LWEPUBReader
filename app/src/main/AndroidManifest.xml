@@ -3,9 +3,12 @@
     package="com.projectclean.lwepubreader">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="21"/>
 
     <application
         android:allowBackup="true"
@@ -70,7 +73,6 @@
         </activity>
 
         <service android:name="com.projectclean.lwepubreader.services.DropboxDownloadService" />
-
 
         <meta-data android:name="com.appodeal.framework" android:value="android" />
         <receiver android:name="com.appodeal.ads.AppodealPackageAddedReceiver" android:exported="true" android:enabled="true">

@@ -36,7 +36,6 @@ public class CustomFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-
         MyLibraryFragment myLibrary = null;
 
         if (position == MOST_RECENT_BOOKS){

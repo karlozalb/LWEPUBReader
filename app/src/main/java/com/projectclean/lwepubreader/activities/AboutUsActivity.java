@@ -25,6 +25,11 @@ public class AboutUsActivity extends AppCompatActivity{
 
         mToolBar = (Toolbar) findViewById(R.id.configuration_toolbar);
         setSupportActionBar(mToolBar);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+
         mToolBar.setTitle(getString(R.string.about_us));
     }
 

@@ -34,4 +34,20 @@ public class EPUBDialogFactory {
         dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(pactivity.getResources().getColor(R.color.pcg_orange));
     }
 
+    public  static void createAndShowAlertDialogNoNegativeButton(Activity pactivity,String ptitle,String pmessage,final OnEPUBDialogClickListener plistener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(pactivity);
+        builder.setTitle(ptitle);
+        builder.setMessage(pmessage);
+        builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                plistener.onPositiveButtonClick();
+                dialog.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(pactivity.getResources().getColor(R.color.pcg_orange));
+    }
+
 }

@@ -15,9 +15,13 @@ import com.projectclean.lwepubreader.io.FileUtils;
  */
 public class MostRecentFragment extends MyLibraryFragment{
 
+    private boolean mFirstRun;
+    private boolean mEmptyList;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setFragmentParams();
+
+        mFirstRun = true;
 
         View v = inflater.inflate(mLayoutID, container, false);
 
@@ -39,4 +43,5 @@ public class MostRecentFragment extends MyLibraryFragment{
 
         return v;
     }
+
 }

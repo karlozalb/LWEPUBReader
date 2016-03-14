@@ -5,29 +5,24 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.dropbox.core.v2.files.FileMetadata;
 import com.projectclean.lwepubreader.MainActivity;
-import com.projectclean.lwepubreader.Router;
-import com.projectclean.lwepubreader.activities.EPUBActivity;
-import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.R;
-import com.projectclean.lwepubreader.dropbox.DownloadFileTask;
+import com.projectclean.lwepubreader.Router;
+import com.projectclean.lwepubreader.adapters.MyLibraryAdapter;
 import com.projectclean.lwepubreader.dropbox.DropboxHelper;
 import com.projectclean.lwepubreader.epub.EPUBImporter;
 import com.projectclean.lwepubreader.epub.IProgressListener;
@@ -36,7 +31,6 @@ import com.projectclean.lwepubreader.listnodes.MyLibraryBookListNode;
 import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.services.DropboxDownloadService;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -211,6 +205,7 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
 
         if (mProgressBroadcastReceiver == null && mResponseBroadcastReceiver == null) {
             ProgressDialogFragment progressDialog = Router.showLoadingDialog(getActivity());
+            progressDialog.setInitialBook(pselectedbooks.get(0).getName());
 
             mProgressBroadcastReceiver = new ProgressDialogBroadcastReceiver(progressDialog);
             mResponseBroadcastReceiver = new DownloadTaskServiceResponseReceiver(progressDialog);
@@ -310,8 +305,10 @@ public class MyLibraryFragment extends GenericFragment implements IProgressListe
         @Override
         public void onReceive(Context context, Intent intent) {
             int progress = intent.getIntExtra(DropboxDownloadService.PROGRESS,0);
+            String filename = intent.getStringExtra(DropboxDownloadService.FILENAME);
             System.out.println("Progreso recibido: "+progress);
             mDialog.getProgressBar().setProgress(progress);
+            mDialog.getCurrentBookTextView().setText(filename);
         }
     }
 

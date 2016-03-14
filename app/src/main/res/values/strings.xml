@@ -29,7 +29,7 @@
     <string name="context_menu_delete_text">Delete</string>
 
     <string name="mylibrary_empty_text">Press the update button (bottom-right corner) to add your books to the library.</string>
-    <string name="read_empty_text">As soon as you read a book, it will appear in this list</string>
+    <string name="read_empty_text">Every book marked as read will appear in this list</string>
     <string name="most_recent_empty_text">When you start reading a book, it will appear in this list</string>
 
     <string name="action_settings">Settings</string>
@@ -40,7 +40,7 @@
 
     <string name="button_add">Add</string>
     <string name="button_select_all">Select all</string>
-    <string name="button_select_none">Unselect all</string>
+    <string name="button_select_none">Select none</string>
 
     <string name="book_title">Title:</string>
     <string name="book_author">Written by:</string>
@@ -53,6 +53,7 @@
 
     <string name="import_from_dropbox_dialog_title">Import from Dropbox</string>
     <string name="dropbox_terms_message">You are about to synchronize this app with Dropbox. SwiftReader: \n 1. Will NOT use any data about your Dropbox account (email, user, etc.) \n 2. Will exclusively use and process the selected epub files, and not other files.\n Do you want to continue?</string>
+    <string name="dropbox_sync_title">Searching epubs in your Dropbox folder...</string>
 
     <string name="loading">Loading...</string>
 
@@ -99,5 +100,8 @@
     <string name="configuration_translation_mode">Translation options</string>
     <string name="configuration_translation_message">This is the default option, you can choose specific translation options throught the \'Details\' menu of each book.</string>
     <string name="translation">Translation</string>
+
+    <string name="no_internet_error">No internet connection found :(</string>
+    <string name="nothing_to_import">Nothing to import! :O</string>
 
 </resources>

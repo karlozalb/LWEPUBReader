@@ -26,6 +26,7 @@ public class DropboxDownloadService extends IntentService {
     public static final String ACTION_DropboxDownloadService_UPDATE = "com.projectclean.lwepubreader.services.UPDATE";
 
     public static final String PROGRESS = "SERVICE_PROGRESS";
+    public static final String FILENAME = "SERVICE_FILENAME";
     public static final String RESPONSE = "SERVICE_RESPONSE";
 
     private Exception mException;
@@ -86,6 +87,8 @@ public class DropboxDownloadService extends IntentService {
                     int currentPercentageProgress = (int) (((float) progress / (float) fileMetadata.size()) * 100);
 
                     intentUpdate.putExtra(PROGRESS, currentPercentageProgress);
+                    intentUpdate.putExtra(FILENAME, m.getName());
+
                     sendBroadcast(intentUpdate);
 
                     System.out.println("Progreso enviado: "+currentPercentageProgress);

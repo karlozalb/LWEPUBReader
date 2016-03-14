@@ -42,6 +42,12 @@ public class FileUtils {
         for (File device : mExternalDirectores){
             mRootExternalDirectores.add(getRootOfInnerSdCardFolder(device));
         }
+
+        File external = Environment.getExternalStorageDirectory();
+
+        if (external != null) {
+            mRootExternalDirectores.add(getRootOfInnerSdCardFolder(external));
+        }
     }
 
     public LinkedList<String> scanFileSystemForEPUB(){
@@ -72,13 +78,15 @@ public class FileUtils {
         LinkedList<String> epubPaths = new LinkedList<String>();
         File[] files = pdirectory.listFiles();
 
-        for (File file : files){
-            if (file.isDirectory()){
-                LinkedList<String> moreEPUBs = getEPUBRecursive(file);
-                if (moreEPUBs!=null && moreEPUBs.size() > 0) epubPaths.addAll(moreEPUBs);
-            }else{
-                if (file.getName().toUpperCase().endsWith(".EPUB")){
-                    epubPaths.add(file.getAbsolutePath());
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    LinkedList<String> moreEPUBs = getEPUBRecursive(file);
+                    if (moreEPUBs != null && moreEPUBs.size() > 0) epubPaths.addAll(moreEPUBs);
+                } else {
+                    if (file.getName().toUpperCase().endsWith(".EPUB")) {
+                        epubPaths.add(file.getAbsolutePath());
+                    }
                 }
             }
         }
@@ -93,7 +101,7 @@ public class FileUtils {
         while(true)
         {
             final File parentFile=file.getParentFile();
-            if(parentFile==null||parentFile.getTotalSpace()!=totalSpace) return file;
+            if(parentFile==null||parentFile.getTotalSpace()!=totalSpace||parentFile.listFiles() == null) return file;
             file=parentFile;
         }
     }

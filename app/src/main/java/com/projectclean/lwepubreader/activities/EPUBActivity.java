@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.net.Uri;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -15,11 +17,15 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.ShareActionProvider;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -30,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appodeal.ads.Appodeal;
+import com.google.common.io.CharStreams;
 import com.projectclean.lwepubreader.R;
 import com.projectclean.lwepubreader.Router;
 import com.projectclean.lwepubreader.adapters.BookPagePagerAdapter;
@@ -39,11 +46,12 @@ import com.projectclean.lwepubreader.model.Book;
 import com.projectclean.lwepubreader.translation.ITranslationCallBack;
 import com.projectclean.lwepubreader.translation.TranslationProvider;
 import com.projectclean.lwepubreader.utils.DateTimeUtils;
+import com.projectclean.lwepubreader.utils.EPUBDialogFactory;
 import com.projectclean.lwepubreader.utils.JavascriptEPUBInterface;
 import com.projectclean.lwepubreader.utils.JavascriptUtils;
+import com.projectclean.lwepubreader.utils.NetworkUtils;
+import com.projectclean.lwepubreader.utils.OnEPUBDialogClickListener;
 import com.projectclean.lwepubreader.utils.ScreenUtils;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -248,14 +256,16 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
             String htmlSite = "";
 
             try {
-                htmlSite = IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html")));
+                //htmlSite = IOUtils.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html")));
+                htmlSite = CharStreams.toString(new InputStreamReader(getAssets().open("epub_page_skeleton.html"),"UTF-8"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
+            setWebViewConfiguration();
+
             ((WebView) mContentView).loadDataWithBaseURL("file:///android_asset/", htmlSite, "text/html", "UTF-8", null);
             //((WebView) mContentView).loadUrl("http://www.google.es");
-            setWebViewConfiguration();
         }
 
         mScreenWidth = ScreenUtils.getScreenWidth(this);
@@ -263,7 +273,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         setParameters();
 
         mFontChangeSeekBar.setMax((mMaxFontSize - mMinFontSize) / 2);
-        mFontChangeSeekBar.setProgress((Integer.parseInt(mBook.getFontSize()) - mMinFontSize) / 2);
+        mFontChangeSeekBar.setProgress((ScreenUtils.getDpFromPixels(this,Integer.parseInt(mBook.getFontSize())) - mMinFontSize) / 2);
 
         mMarginChangeSeekBar.setMax(mMaxWidthAndHeight - mMinWidthAndHeight);
         mMarginChangeSeekBar.setProgress(mBook.getMarginPercentage() - mMinWidthAndHeight);
@@ -282,7 +292,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
         mEnableOverEPUBControl = true;
 
-        if (Math.random() <= 0.5f) {
+        if (Math.random() <= 0.4f) {
             Appodeal.show(this, Appodeal.INTERSTITIAL);
         }
     }
@@ -311,8 +321,8 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Log.i("LWEPUB", mBook.toString());
-                mBook.save();
-                ((WebView) mContentView).loadUrl("javascript: setFontSize("+mCurrentFontSizePx+");");
+                //mBook.save();
+                ((WebView) mContentView).loadUrl("javascript: setFontSize("+ScreenUtils.getPixelsFromDp(EPUBActivity.this,mCurrentFontSizePx)+");");
             }
         });
 
@@ -394,7 +404,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
     private void setParameters(){
         mMinFontSize = getResources().getInteger(R.integer.min_font_size_px);
-        mMaxFontSize = getResources().getInteger(R.integer.max_font_size_px);
+        mMaxFontSize = 24; //Originally 48
 
         mMinMarginSize = getResources().getInteger(R.integer.min_margin_size_px);
         mMaxMarginSize = getResources().getInteger(R.integer.max_margin_size_px);
@@ -462,7 +472,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
         final WebView webView = (WebView)mContentView;
 
-        //WebView.setWebContentsDebuggingEnabled(true);
+        WebView.setWebContentsDebuggingEnabled(true);
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
@@ -474,15 +484,36 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         webView.setHorizontalScrollBarEnabled(false);
         webView.setVerticalScrollBarEnabled(false);
 
+        webView.setWebChromeClient(new WebChromeClient() {
+            public boolean onConsoleMessage(ConsoleMessage pmessage) {
+                Log.i("LWEPUB", pmessage.message());
+                return true;
+            }
+        });
+
+        webView.addJavascriptInterface(new JavascriptEPUBInterface(this, mBook), "Android");
+
         webView.setWebViewClient(new WebViewClient() {
+
+                                     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                         Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                         startActivity(i);
+                                         return true;
+                                     }
+
                                      public void onPageFinished(WebView view, String url) {
+                                         webView.loadUrl("javascript:test();");
                                          int[] virtualSizes = updateMargins();
                                          if (mBook.getWidth() == null || mBook.getHeight() == null) {
                                              webView.loadUrl("javascript:loadBook('file:///" + mEPUBPath + "'," + mBook.getFontSize() + ",'" + mBook.getBookState() + "'," + virtualSizes[0] + "," + virtualSizes[1] + "," + mBook.getColorMode() + ");");
                                          } else {
                                              webView.loadUrl("javascript:setLocations('" + mBook.getLocations() + "');");
                                              try {
-                                                 webView.loadUrl("javascript:setPagination('" + IOUtils.toString(FileUtils.getInstance(EPUBActivity.this).getInputStreamFromInternalStorage(mBook.getBookFileName() + ".json")) + "');");
+                                                 String pagination = CharStreams.toString(new InputStreamReader(FileUtils.getInstance(EPUBActivity.this).getInputStreamFromInternalStorage(mBook.getBookFileName() + ".json")));
+
+                                                 //webView.loadUrl("javascript:setPagination('" + IOUtils.toString(FileUtils.getInstance(EPUBActivity.this).getInputStreamFromInternalStorage(mBook.getBookFileName() + ".json")) + "');");
+                                                 webView.loadUrl("javascript:setPagination('" + pagination + "');");
+
                                              } catch (IOException e) {
                                                  e.printStackTrace();
                                              }
@@ -491,8 +522,6 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
                                      }
                                  }
         );
-
-        webView.addJavascriptInterface(new JavascriptEPUBInterface(this, mBook), "Android");
 
         webView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -629,7 +658,7 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
 
     @Override
     public void setTranslationResponse(String pdata) {
-        //Log.i("LWEPUB",pdata);
+        Log.i("LWEPUB", pdata);
 
         Router.showTranslationFragmentDialog(this, pdata);
     }
@@ -637,15 +666,18 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
+        int sizes[] = updateMargins();
+        ((WebView) mContentView).loadUrl("javascript: setBookWidthAndHeight(" + sizes[0] + "," + sizes[1] + ");");
+        //((WebView) mContentView).loadUrl("javascript: setBookWidth(" + sizes[0] + ");setBookHeight(" + sizes[1] + ");");
+
         // Checks the orientation of the screen
         /*if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Toast.makeText(this, ScreenUtils.getScreenWidth(this)+"x"+ScreenUtils.getScreenHeight(this), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, ScreenUtils.getScreenWidth(this)+"x"+ScreenUtils.getScreenHeight(this), Toast.LENGTH_SHORT).show();
+            ((WebView) mContentView).loadUrl("javascript: setMultiColumn();");
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-            Toast.makeText(this, ScreenUtils.getScreenWidth(this)+"x"+ScreenUtils.getScreenHeight(this), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, ScreenUtils.getScreenWidth(this)+"x"+ScreenUtils.getScreenHeight(this), Toast.LENGTH_SHORT).show();
+            ((WebView) mContentView).loadUrl("javascript: setOneColumn();");
         }*/
-
-        int sizes[] = updateMargins();
-        ((WebView) mContentView).loadUrl("javascript: setBookWidth(" + sizes[0] + ");setBookHeight(" + sizes[1] + ");");
     }
 
     public int[] updateMargins(){
@@ -696,7 +728,21 @@ public class EPUBActivity extends AppCompatActivity implements ITranslationCallB
         menu.findItem(R.id.translate_action_btn).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                ((WebView) mContentView).loadUrl("javascript: getSelectedText();");
+                if (NetworkUtils.isNetworkAvailable(EPUBActivity.this)){
+                    ((WebView) mContentView).loadUrl("javascript: getSelectedText();");
+                }else{
+                    EPUBDialogFactory.createAndShowAlertDialogNoNegativeButton(EPUBActivity.this, "Oops...", getString(R.string.no_internet_error), new OnEPUBDialogClickListener() {
+                        @Override
+                        public void onPositiveButtonClick() {
+
+                        }
+
+                        @Override
+                        public void onNegativeButtonClick() {
+
+                        }
+                    });
+                }
                 return true;
             }
         });
